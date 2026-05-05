@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titre %}UCAO Approvisionnements{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ static('css/base.css') }}">
+    {% block styles_extra %}{% endblock %}
+
+    <script>
+        // Charge le theme avant le rendu pour eviter le "flash"
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+</head>
+<body>
+
+    <div class="app-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icone">U</div>
+                    <div class="logo-texte">
+                        <div class="logo-titre">UCAO-ISG-CSM</div>
+                        <div class="logo-sous-titre">Appro Online</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-titre">Menu principal</div>
+                    <a href="{{ url('tableau_de_bord') }}" class="nav-item active">
+                        <i data-lucide="layout-dashboard" class="nav-icone"></i>
+                        <span class="nav-label">Tableau de bord</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i data-lucide="file-text" class="nav-icone"></i>
+                        <span class="nav-label">Mes FEB</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i data-lucide="clipboard-list" class="nav-icone"></i>
+                        <span class="nav-label">Bons de commande</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i data-lucide="wallet" class="nav-icone"></i>
+                        <span class="nav-label">Paiements</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-titre">Reference</div>
+                    <a href="#" class="nav-item">
+                        <i data-lucide="package" class="nav-icone"></i>
+                        <span class="nav-label">Articles</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i data-lucide="building-2" class="nav-icone"></i>
+                        <span class="nav-label">Fournisseurs</span>
+                    </a>
+                </div>
+
+                {% if request.user.est_admin %}
+                <div class="nav-section">
+                    <div class="nav-section-titre">Administration</div>
+                    <a href="/admin-django/" class="nav-item">
+                        <i data-lucide="settings" class="nav-icone"></i>
+                        <span class="nav-label">Admin Django</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i data-lucide="users" class="nav-icone"></i>
+                        <span class="nav-label">Utilisateurs</span>
+                    </a>
+                </div>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-theme" id="btn-theme" type="button" title="Changer le theme">
+                    <i data-lucide="moon" class="theme-icone-clair"></i>
+                    <i data-lucide="sun" class="theme-icone-sombre"></i>
+                    <span class="theme-label">Mode nuit</span>
+                </button>
+            </div>
+        </aside>
+
+        <div class="contenu-zone">
+            <header class="header-app">
+                <div class="header-gauche">
+                    <h1 class="header-titre">{% block page_titre %}Tableau de bord{% endblock %}</h1>
+                </div>
+                <div class="header-droite">
+                    <div class="header-utilisateur">
+                        <div class="utilisateur-avatar">{{ request.user.nom_complet[0] }}</div>
+                        <div class="utilisateur-infos">
+                            <div class="utilisateur-nom">{{ request.user.nom_complet }}</div>
+                            <div class="utilisateur-role">{{ request.user.get_role_display() }}</div>
+                        </div>
+                    </div>
+                    <a href="{{ url('deconnexion') }}" class="btn btn-secondaire">
+                        <i data-lucide="log-out" class="btn-icone"></i>
+                        <span>Deconnexion</span>
+                    </a>
+                </div>
+            </header>
+
+            <main class="contenu-principal">
+                {% block contenu %}{% endblock %}
+            </main>
+        </div>
+
+    </div>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="{{ static('js/base.js') }}"></script>
+    {% block scripts_extra %}{% endblock %}
+</body>
+</html>

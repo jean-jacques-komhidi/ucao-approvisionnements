@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block titre %}Connexion - UCAO Approvisionnements{% endblock %}
+
+{% block contenu %}
+<div class="page-connexion">
+    <div class="connexion-conteneur">
+
+        <div class="connexion-marque">
+            <div class="logo-grand">
+                <div class="logo-icone-grand">U</div>
+            </div>
+            <h1 class="marque-titre">UCAO-ISG-CSM</h1>
+            <p class="marque-sous-titre">Systeme de Gestion des Approvisionnements</p>
+        </div>
+
+        <div class="carte-connexion">
+            <div class="carte-entete">
+                <h2>Connexion</h2>
+                <p>Acceder a votre espace</p>
+            </div>
+
+            <form method="post" class="formulaire-connexion" novalidate>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+                {% if formulaire.non_field_errors() %}
+                    <div class="erreur-globale">
+                        {% for erreur in formulaire.non_field_errors() %}
+                            <p>{{ erreur }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.identifiant.id_for_label }}">Identifiant</label>
+                    {{ formulaire.identifiant }}
+                    {% if formulaire.identifiant.errors %}
+                        <span class="erreur-champ">{{ formulaire.identifiant.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.mot_de_passe.id_for_label }}">Mot de passe</label>
+                    {{ formulaire.mot_de_passe }}
+                    {% if formulaire.mot_de_passe.errors %}
+                        <span class="erreur-champ">{{ formulaire.mot_de_passe.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-principal btn-pleine-largeur">
+                    Se connecter
+                </button>
+            </form>
+
+            <div class="carte-pied">
+                <p>Mot de passe oublie ? Contactez l'administrateur.</p>
+            </div>
+        </div>
+
+        <div class="connexion-pied">
+            <p>&copy; 2025 UCAO-ISG-CSM &mdash; Master Informatique de Gestion</p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

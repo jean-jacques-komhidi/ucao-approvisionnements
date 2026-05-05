@@ -1,0 +1,157 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Tableau de bord - UCAO Approvisionnements{% endblock %}
+{% block page_titre %}Tableau de bord{% endblock %}
+
+{% block contenu %}
+<div class="dashboard">
+
+    <div class="bandeau-bienvenue">
+        <div>
+            <h2>Bonjour, {{ utilisateur.nom_complet }}</h2>
+            <p class="bandeau-sous-titre">Voici un resume de votre activite</p>
+        </div>
+        <div class="bandeau-badge">
+            {{ role_libelle }}
+        </div>
+    </div>
+
+    <div class="grille-statistiques">
+        {% if est_demandeur %}
+            <div class="carte-stat">
+                <div class="carte-stat-entete">
+                    <div class="carte-stat-icone-wrapper">
+                        <i data-lucide="file-text" class="carte-stat-icone"></i>
+                    </div>
+                    <span class="carte-stat-tendance positive">
+                        <i data-lucide="trending-up" class="tendance-icone"></i>
+                        +0
+                    </span>
+                </div>
+                <div class="carte-stat-corps">
+                    <p class="carte-stat-label">Mes FEB</p>
+                    <p class="carte-stat-valeur">0</p>
+                    <p class="carte-stat-detail">Fiches en cours</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if peut_valider_feb %}
+            <div class="carte-stat">
+                <div class="carte-stat-entete">
+                    <div class="carte-stat-icone-wrapper">
+                        <i data-lucide="check-circle-2" class="carte-stat-icone"></i>
+                    </div>
+                    <span class="carte-stat-tendance neutre">A traiter</span>
+                </div>
+                <div class="carte-stat-corps">
+                    <p class="carte-stat-label">FEB a valider</p>
+                    <p class="carte-stat-valeur">0</p>
+                    <p class="carte-stat-detail">En attente</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if peut_valider_bc %}
+            <div class="carte-stat">
+                <div class="carte-stat-entete">
+                    <div class="carte-stat-icone-wrapper">
+                        <i data-lucide="clipboard-list" class="carte-stat-icone"></i>
+                    </div>
+                    <span class="carte-stat-tendance neutre">A traiter</span>
+                </div>
+                <div class="carte-stat-corps">
+                    <p class="carte-stat-label">BC a valider</p>
+                    <p class="carte-stat-valeur">0</p>
+                    <p class="carte-stat-detail">Bons de commande</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if est_admin %}
+            <div class="carte-stat">
+                <div class="carte-stat-entete">
+                    <div class="carte-stat-icone-wrapper">
+                        <i data-lucide="users" class="carte-stat-icone"></i>
+                    </div>
+                    <span class="carte-stat-tendance positive">
+                        <i data-lucide="trending-up" class="tendance-icone"></i>
+                        Actifs
+                    </span>
+                </div>
+                <div class="carte-stat-corps">
+                    <p class="carte-stat-label">Utilisateurs</p>
+                    <p class="carte-stat-valeur">1</p>
+                    <p class="carte-stat-detail">Comptes geres</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="carte-stat">
+            <div class="carte-stat-entete">
+                <div class="carte-stat-icone-wrapper">
+                    <i data-lucide="bar-chart-3" class="carte-stat-icone"></i>
+                </div>
+                <span class="carte-stat-tendance neutre">Cette annee</span>
+            </div>
+            <div class="carte-stat-corps">
+                <p class="carte-stat-label">Total FEB</p>
+                <p class="carte-stat-valeur">0</p>
+                <p class="carte-stat-detail">Sur l'annee 2025</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>Etat du projet</h3>
+            <p>Avancement du developpement des modules</p>
+        </div>
+        <div class="carte-contenu">
+            <ul class="liste-statuts">
+                <li class="statut-item">
+                    <div class="statut-info">
+                        <i data-lucide="user-check" class="statut-icone"></i>
+                        <span class="statut-nom">Module Comptes (authentification)</span>
+                    </div>
+                    <span class="badge badge-success">
+                        <i data-lucide="check" class="badge-icone"></i>
+                        Termine
+                    </span>
+                </li>
+                <li class="statut-item">
+                    <div class="statut-info">
+                        <i data-lucide="package" class="statut-icone"></i>
+                        <span class="statut-nom">Module Referentiels</span>
+                    </div>
+                    <span class="badge badge-warning">
+                        <i data-lucide="loader" class="badge-icone"></i>
+                        En cours
+                    </span>
+                </li>
+                <li class="statut-item">
+                    <div class="statut-info">
+                        <i data-lucide="file-text" class="statut-icone"></i>
+                        <span class="statut-nom">Module FEB / BC / Paiements</span>
+                    </div>
+                    <span class="badge badge-neutre">
+                        <i data-lucide="clock" class="badge-icone"></i>
+                        Planifie
+                    </span>
+                </li>
+                <li class="statut-item">
+                    <div class="statut-info">
+                        <i data-lucide="radio" class="statut-icone"></i>
+                        <span class="statut-nom">Extensions IoT &amp; Prediction</span>
+                    </div>
+                    <span class="badge badge-neutre">
+                        <i data-lucide="clock" class="badge-icone"></i>
+                        Planifie
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

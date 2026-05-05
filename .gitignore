@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+
+# Environnement virtuel
+venv/
+
+# Variables d'environnement
+.env
+.env.local
+
+# Django
+*.log
+db.sqlite3
+/staticfiles/
+/media/
+local_settings.py
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+logs/*.log
