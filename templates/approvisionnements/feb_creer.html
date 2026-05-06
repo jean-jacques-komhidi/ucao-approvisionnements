@@ -1,0 +1,416 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ titre_page }} - UCAO{% endblock %}
+{% block page_titre %}{{ titre_page }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('feb_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux FEB
+    </a>
+
+    <form method="post" class="formulaire-feb" novalidate>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+        {# ─── ENTETE FEB ──────────────────────────────────── #}
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>Informations generales</h3>
+                <p>Numero FEB genere automatiquement apres creation</p>
+            </div>
+
+            <div class="formulaire">
+                {% if formulaire.non_field_errors() %}
+                    <div class="erreur-globale">
+                        <i data-lucide="alert-circle" class="erreur-icone"></i>
+                        <div>
+                            {% for erreur in formulaire.non_field_errors() %}
+                                <p>{{ erreur }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.objet.id_for_label }}">Objet de la demande *</label>
+                    {{ formulaire.objet }}
+                    {% if formulaire.objet.errors %}
+                        <span class="erreur-champ">{{ formulaire.objet.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="grille-champs-2">
+                    <div class="champ-groupe">
+                        <label for="{{ formulaire.fournisseur.id_for_label }}">Fournisseur *</label>
+                        {{ formulaire.fournisseur }}
+                        {% if formulaire.fournisseur.errors %}
+                            <span class="erreur-champ">{{ formulaire.fournisseur.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="champ-groupe">
+                        <label for="{{ formulaire.taux_tva.id_for_label }}">Taux TVA *</label>
+                        {{ formulaire.taux_tva }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ─── LIGNES (DYNAMIQUE) ──────────────────────────── #}
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>Lignes de la FEB</h3>
+                <p>Ajoutez articles et services. Au moins une ligne est requise.</p>
+            </div>
+
+            <div class="formulaire">
+                {{ formset.management_form }}
+
+                {% if formset.non_form_errors() %}
+                    <div class="erreur-globale">
+                        <i data-lucide="alert-circle" class="erreur-icone"></i>
+                        <div>
+                            {% for erreur in formset.non_form_errors() %}
+                                <p>{{ erreur }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div id="lignes-conteneur">
+                    {% for forme in formset %}
+                        <div class="ligne-feb" data-ligne-index="{{ loop.index0 }}">
+                            <div class="ligne-feb-entete">
+                                <span class="ligne-feb-numero">Ligne {{ loop.index }}</span>
+                                <button type="button" class="btn btn-danger btn-petit btn-supprimer-ligne">
+                                    <i data-lucide="trash-2" class="btn-icone"></i>
+                                    Retirer
+                                </button>
+                            </div>
+
+                            {# Champs caches (id, DELETE) #}
+                            {% for champ in forme.hidden_fields() %}
+                                {{ champ }}
+                            {% endfor %}
+
+                            <div class="ligne-feb-corps">
+                                <div class="champ-groupe">
+                                    <label>Type *</label>
+                                    {{ forme.type_ligne }}
+                                </div>
+
+                                <div class="champ-groupe ligne-champ-article">
+                                    <label>Article (catalogue)</label>
+                                    {{ forme.article }}
+                                </div>
+
+                                <div class="champ-groupe ligne-champ-service" style="display:none;">
+                                    <label>Service (catalogue)</label>
+                                    {{ forme.service }}
+                                </div>
+
+                                <div class="champ-groupe ligne-champ-libre">
+                                    <label>Ou designation libre</label>
+                                    {{ forme.designation_libre }}
+                                </div>
+
+                                <div class="champ-groupe">
+                                    <label>Quantite *</label>
+                                    {{ forme.quantite }}
+                                </div>
+
+                                <div class="champ-groupe">
+                                    <label>Prix unitaire *</label>
+                                    {{ forme.prix_unitaire }}
+                                </div>
+
+                                <div class="champ-groupe">
+                                    <label>Montant ligne</label>
+                                    <div class="montant-calcule">
+                                        <span class="montant-valeur">0</span>
+                                        <span class="montant-devise">F CFA</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if forme.errors %}
+                                <div class="ligne-erreurs">
+                                    {% for champ, erreurs in forme.errors.items() %}
+                                        {% for erreur in erreurs %}
+                                            <span class="erreur-champ">{{ champ }} : {{ erreur }}</span>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" id="btn-ajouter-ligne" class="btn btn-secondaire">
+                    <i data-lucide="plus" class="btn-icone"></i>
+                    Ajouter une ligne
+                </button>
+
+                {# Template cache pour clonage JS #}
+                <template id="template-ligne">
+                    <div class="ligne-feb" data-ligne-index="__INDEX__">
+                        <div class="ligne-feb-entete">
+                            <span class="ligne-feb-numero">Nouvelle ligne</span>
+                            <button type="button" class="btn btn-danger btn-petit btn-supprimer-ligne">
+                                <i data-lucide="trash-2" class="btn-icone"></i>
+                                Retirer
+                            </button>
+                        </div>
+                        <div class="ligne-feb-corps">
+                            <div class="champ-groupe">
+                                <label>Type *</label>
+                                <select name="lignes-__INDEX__-type_ligne" class="champ-formulaire ligne-type">
+                                    <option value="ARTICLE">Article</option>
+                                    <option value="SERVICE">Service</option>
+                                </select>
+                            </div>
+                            <div class="champ-groupe ligne-champ-article">
+                                <label>Article (catalogue)</label>
+                                <select name="lignes-__INDEX__-article" class="champ-formulaire ligne-article">
+                                    <option value="">---------</option>
+                                </select>
+                            </div>
+                            <div class="champ-groupe ligne-champ-service" style="display:none;">
+                                <label>Service (catalogue)</label>
+                                <select name="lignes-__INDEX__-service" class="champ-formulaire ligne-service">
+                                    <option value="">---------</option>
+                                </select>
+                            </div>
+                            <div class="champ-groupe ligne-champ-libre">
+                                <label>Ou designation libre</label>
+                                <input type="text" name="lignes-__INDEX__-designation_libre" class="champ-formulaire ligne-designation" placeholder="Ou designation libre...">
+                            </div>
+                            <div class="champ-groupe">
+                                <label>Quantite *</label>
+                                <input type="number" name="lignes-__INDEX__-quantite" step="0.01" min="0" class="champ-formulaire ligne-quantite" placeholder="Qte">
+                            </div>
+                            <div class="champ-groupe">
+                                <label>Prix unitaire *</label>
+                                <input type="number" name="lignes-__INDEX__-prix_unitaire" step="0.01" min="0" class="champ-formulaire ligne-prix" placeholder="Prix unitaire">
+                            </div>
+                            <div class="champ-groupe">
+                                <label>Montant ligne</label>
+                                <div class="montant-calcule">
+                                    <span class="montant-valeur">0</span>
+                                    <span class="montant-devise">F CFA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        {# ─── RECAPITULATIF DES TOTAUX ─────────────────────── #}
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>Recapitulatif</h3>
+                <p>Totaux calcules automatiquement</p>
+            </div>
+
+            <div class="recap-totaux">
+                <div class="recap-ligne">
+                    <span class="recap-label">Montant HT</span>
+                    <span class="recap-valeur" id="total-ht">0 F CFA</span>
+                </div>
+                <div class="recap-ligne">
+                    <span class="recap-label">Taux TVA</span>
+                    <span class="recap-valeur" id="recap-taux-tva">18 %</span>
+                </div>
+                <div class="recap-ligne">
+                    <span class="recap-label">Montant TVA</span>
+                    <span class="recap-valeur" id="total-tva">0 F CFA</span>
+                </div>
+                <div class="recap-ligne recap-final">
+                    <span class="recap-label">Montant TTC</span>
+                    <span class="recap-valeur" id="total-ttc">0 F CFA</span>
+                </div>
+
+                <div class="seuil-info" id="seuil-info" style="display: none;">
+                    <i data-lucide="info" class="info-icone"></i>
+                    <span>Le montant depasse 50 000 F CFA : un Bon de Commande sera genere automatiquement.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="formulaire-actions">
+            <a href="{{ url('feb_liste') }}" class="btn btn-secondaire">Annuler</a>
+            <button type="submit" class="btn btn-principal">
+                <i data-lucide="send" class="btn-icone"></i>
+                Soumettre la FEB
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+// Donnees catalogues injectees pour les selects dynamiques
+const ARTICLES = {{ articles_data|tojson }};
+const SERVICES = {{ services_data|tojson }};
+const SEUIL_BC = 50000;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initialiserLignesFEB();
+});
+
+function initialiserLignesFEB() {
+    const conteneur = document.getElementById('lignes-conteneur');
+    const btnAjouter = document.getElementById('btn-ajouter-ligne');
+    const totalForms = document.getElementById('id_lignes-TOTAL_FORMS');
+    const tauxTvaInput = document.querySelector('select[name="taux_tva"]');
+
+    // ─── Ajout d'une nouvelle ligne ───────────────────
+    btnAjouter.addEventListener('click', function() {
+        const index = parseInt(totalForms.value);
+        const template = document.getElementById('template-ligne').innerHTML;
+        const html = template.replace(/__INDEX__/g, index);
+
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        const nouvelleLigne = div.firstElementChild;
+        conteneur.appendChild(nouvelleLigne);
+
+        // Peuple les selects Article et Service
+        peuplerSelects(nouvelleLigne);
+
+        totalForms.value = index + 1;
+        attacherEvenements(nouvelleLigne);
+        recalculerTotaux();
+
+        // Re-init Lucide pour les icones de la nouvelle ligne
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+
+    // ─── Initialise les lignes existantes ────────────
+    document.querySelectorAll('.ligne-feb').forEach(function(ligne) {
+        peuplerSelects(ligne);
+        attacherEvenements(ligne);
+    });
+
+    // ─── Changement du taux TVA ───────────────────────
+    if (tauxTvaInput) {
+        tauxTvaInput.addEventListener('change', recalculerTotaux);
+    }
+
+    recalculerTotaux();
+}
+
+function peuplerSelects(ligne) {
+    const selectArticle = ligne.querySelector('.ligne-article');
+    const selectService = ligne.querySelector('.ligne-service');
+
+    if (selectArticle && selectArticle.options.length <= 1) {
+        ARTICLES.forEach(function(art) {
+            const opt = document.createElement('option');
+            opt.value = art.id;
+            opt.textContent = art.designation + ' (' + art.unite + ')';
+            selectArticle.appendChild(opt);
+        });
+    }
+
+    if (selectService && selectService.options.length <= 1) {
+        SERVICES.forEach(function(serv) {
+            const opt = document.createElement('option');
+            opt.value = serv.id;
+            opt.textContent = serv.designation;
+            selectService.appendChild(opt);
+        });
+    }
+}
+
+function attacherEvenements(ligne) {
+    // Suppression de la ligne
+    const btnSupprimer = ligne.querySelector('.btn-supprimer-ligne');
+    if (btnSupprimer) {
+        btnSupprimer.addEventListener('click', function() {
+            const champDelete = ligne.querySelector('input[name$="-DELETE"]');
+            if (champDelete) {
+                // Si la ligne existe en BD, on la marque pour suppression
+                champDelete.checked = true;
+                ligne.style.display = 'none';
+            } else {
+                // Sinon on la retire du DOM
+                ligne.remove();
+            }
+            recalculerTotaux();
+        });
+    }
+
+    // Toggle Article/Service selon type
+    const selectType = ligne.querySelector('.ligne-type');
+    const champArticle = ligne.querySelector('.ligne-champ-article');
+    const champService = ligne.querySelector('.ligne-champ-service');
+
+    if (selectType) {
+        const toggleType = function() {
+            if (selectType.value === 'ARTICLE') {
+                if (champArticle) champArticle.style.display = '';
+                if (champService) champService.style.display = 'none';
+            } else {
+                if (champArticle) champArticle.style.display = 'none';
+                if (champService) champService.style.display = '';
+            }
+        };
+        selectType.addEventListener('change', toggleType);
+        toggleType();
+    }
+
+    // Recalcul auto sur changement quantite/prix
+    ligne.querySelectorAll('.ligne-quantite, .ligne-prix').forEach(function(input) {
+        input.addEventListener('input', function() {
+            recalculerLigne(ligne);
+            recalculerTotaux();
+        });
+    });
+}
+
+function recalculerLigne(ligne) {
+    const qte = parseFloat(ligne.querySelector('.ligne-quantite')?.value || 0);
+    const prix = parseFloat(ligne.querySelector('.ligne-prix')?.value || 0);
+    const montant = qte * prix;
+    const span = ligne.querySelector('.montant-valeur');
+    if (span) {
+        span.textContent = formaterMontant(montant);
+    }
+}
+
+function recalculerTotaux() {
+    let totalHT = 0;
+    document.querySelectorAll('.ligne-feb').forEach(function(ligne) {
+        if (ligne.style.display === 'none') return;
+        const qte = parseFloat(ligne.querySelector('.ligne-quantite')?.value || 0);
+        const prix = parseFloat(ligne.querySelector('.ligne-prix')?.value || 0);
+        totalHT += qte * prix;
+        recalculerLigne(ligne);
+    });
+
+    const tauxTvaInput = document.querySelector('select[name="taux_tva"]');
+    const tauxTva = parseFloat(tauxTvaInput?.value || 18);
+    const totalTVA = totalHT * tauxTva / 100;
+    const totalTTC = totalHT + totalTVA;
+
+    document.getElementById('total-ht').textContent = formaterMontant(totalHT) + ' F CFA';
+    document.getElementById('total-tva').textContent = formaterMontant(totalTVA) + ' F CFA';
+    document.getElementById('total-ttc').textContent = formaterMontant(totalTTC) + ' F CFA';
+    document.getElementById('recap-taux-tva').textContent = tauxTva + ' %';
+
+    // Affiche l'avertissement seuil BC
+    const seuilInfo = document.getElementById('seuil-info');
+    if (seuilInfo) {
+        seuilInfo.style.display = totalTTC > SEUIL_BC ? 'flex' : 'none';
+    }
+}
+
+function formaterMontant(montant) {
+    return Math.round(montant).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+</script>
+{% endblock %}

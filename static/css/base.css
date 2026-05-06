@@ -1816,3 +1816,305 @@ svg.lucide {
         width: 100%;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   FORMULAIRE FEB — LIGNES DYNAMIQUES + RECAPITULATIF
+   ═══════════════════════════════════════════════════════════════ */
+
+.formulaire-feb {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* ─── Une ligne FEB ──────────────────────────────────────────── */
+.ligne-feb {
+    background-color: var(--fond-hover);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-md);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.ligne-feb-entete {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.ligne-feb-numero {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--texte-secondaire);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ligne-feb-corps {
+    display: grid;
+    grid-template-columns: 130px 1fr 1fr 1fr 100px 130px 130px;
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.ligne-feb .champ-groupe {
+    margin: 0;
+}
+
+.ligne-feb label {
+    font-size: 0.7rem;
+    color: var(--texte-secondaire);
+    margin-bottom: 0.2rem;
+}
+
+.ligne-feb .champ-formulaire {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+}
+
+/* Montant calcule (read-only) */
+.montant-calcule {
+    padding: 0.5rem 0.7rem;
+    background-color: var(--fond-surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-align: right;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.3rem;
+}
+
+.montant-devise {
+    font-size: 0.7rem;
+    color: var(--texte-secondaire);
+    font-weight: 400;
+}
+
+/* Erreurs ligne */
+.ligne-erreurs {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--bordure);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* ─── Recapitulatif des totaux ───────────────────────────────── */
+.recap-totaux {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.recap-ligne {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--bordure-claire);
+}
+
+.recap-ligne:last-of-type {
+    border-bottom: none;
+}
+
+.recap-label {
+    color: var(--texte-secondaire);
+    font-size: 0.9rem;
+}
+
+.recap-valeur {
+    font-weight: 600;
+    color: var(--texte-principal);
+    font-size: 1rem;
+}
+
+.recap-final {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--accent);
+    border-bottom: none !important;
+}
+
+.recap-final .recap-label {
+    color: var(--texte-principal);
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.recap-final .recap-valeur {
+    font-size: 1.5rem;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.seuil-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--info-fond);
+    color: var(--info);
+    border-radius: var(--rayon-md);
+    font-size: 0.85rem;
+    border: 1px solid var(--info);
+}
+
+[data-theme="dark"] .seuil-info {
+    color: var(--texte-principal);
+}
+
+/* ─── Detail FEB ─────────────────────────────────────────────── */
+.feb-entete-detail {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.badge-grand {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.9rem;
+}
+
+.feb-detail-grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem 1.5rem;
+}
+
+.detail-bloc-large {
+    grid-column: 1 / -1;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    color: var(--texte-secondaire);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.25rem 0;
+}
+
+.detail-valeur {
+    font-size: 0.95rem;
+    color: var(--texte-principal);
+    font-weight: 500;
+    margin: 0;
+}
+
+/* ─── Actions de validation ──────────────────────────────────── */
+.actions-validation {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.bloc-rejet {
+    flex: 1;
+    min-width: 280px;
+}
+
+.bloc-rejet summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.bloc-rejet summary::-webkit-details-marker {
+    display: none;
+}
+
+.formulaire-rejet {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background-color: var(--fond-hover);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .ligne-feb-corps {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .ligne-feb-corps {
+        grid-template-columns: 1fr;
+    }
+
+    .actions-validation {
+        flex-direction: column;
+    }
+
+    .actions-validation form,
+    .bloc-rejet {
+        width: 100%;
+    }
+}
+/* ═══════════════════════════════════════════════════════════════
+   BADGES — REFONTE (force ligne unique, taille uniforme)
+   ═══════════════════════════════════════════════════════════════ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--rayon-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+
+    /* CRITIQUE : force le badge a rester sur une seule ligne */
+    white-space: nowrap;
+    flex-shrink: 0;
+    width: fit-content;
+    max-width: max-content;
+}
+
+.badge-grand {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* Cellule statut dans tableau : laisse de la place au badge */
+.tableau td:has(.badge) {
+    white-space: nowrap;
+}
+
+/* Conteneur de plusieurs badges (devises principale + active) */
+.cellule-statuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+/* ─── Cellule statut avec sous-detail ────────────────────────── */
+.cellule-statut {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+}
+
+.badge-detail {
+    font-size: 0.65rem;
+    color: var(--texte-tertiaire);
+    font-style: italic;
+    white-space: nowrap;
+}

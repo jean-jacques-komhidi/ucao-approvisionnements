@@ -1,0 +1,160 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ feb.numero }} - UCAO{% endblock %}
+{% block page_titre %}{{ feb.numero }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('feb_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux FEB
+    </a>
+
+    {# ─── ENTETE FEB ────────────────────────────────────── #}
+    <div class="carte">
+        <div class="carte-entete-section feb-entete-detail">
+            <div>
+                <h3>{{ feb.numero }}</h3>
+                <p>{{ feb.objet }}</p>
+            </div>
+            <span class="badge badge-{{ feb.couleur_statut }} badge-grand">
+                {{ feb.get_statut_display() }}
+            </span>
+        </div>
+
+        <div class="formulaire feb-detail-grille">
+            <div class="detail-bloc">
+                <p class="detail-label">Demandeur</p>
+                <p class="detail-valeur">{{ feb.demandeur.nom_complet }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Fournisseur</p>
+                <p class="detail-valeur">{{ feb.fournisseur.code }} — {{ feb.fournisseur.nom }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Date de creation</p>
+                <p class="detail-valeur">{{ feb.date_creation|date_fr }}</p>
+            </div>
+            {% if feb.validateur %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Valide par</p>
+                    <p class="detail-valeur">{{ feb.validateur.nom_complet }}</p>
+                </div>
+            {% endif %}
+            {% if feb.motif_action %}
+                <div class="detail-bloc detail-bloc-large">
+                    <p class="detail-label">Motif</p>
+                    <p class="detail-valeur">{{ feb.motif_action }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ─── LIGNES ─────────────────────────────────────────── #}
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>Lignes ({{ lignes|length }})</h3>
+        </div>
+
+        <div class="tableau-conteneur">
+            <table class="tableau">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Designation</th>
+                        <th style="text-align: right;">Qte</th>
+                        <th style="text-align: right;">Prix unitaire</th>
+                        <th style="text-align: right;">Montant HT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ligne in lignes %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-info">{{ ligne.get_type_ligne_display() }}</span>
+                            </td>
+                            <td><strong>{{ ligne.designation }}</strong></td>
+                            <td style="text-align: right;">{{ ligne.quantite }}</td>
+                            <td style="text-align: right;">{{ ligne.prix_unitaire|fcfa }}</td>
+                            <td style="text-align: right;"><strong>{{ ligne.montant_ligne|fcfa }}</strong></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# ─── RECAPITULATIF ─────────────────────────────────── #}
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>Recapitulatif financier</h3>
+        </div>
+
+        <div class="recap-totaux">
+            <div class="recap-ligne">
+                <span class="recap-label">Montant HT</span>
+                <span class="recap-valeur">{{ feb.montant_ht|fcfa }}</span>
+            </div>
+            <div class="recap-ligne">
+                <span class="recap-label">Taux TVA</span>
+                <span class="recap-valeur">{{ feb.taux_tva }} %</span>
+            </div>
+            <div class="recap-ligne">
+                <span class="recap-label">Montant TVA</span>
+                <span class="recap-valeur">{{ feb.montant_tva|fcfa }}</span>
+            </div>
+            <div class="recap-ligne recap-final">
+                <span class="recap-label">Montant TTC</span>
+                <span class="recap-valeur">{{ feb.montant_ttc|fcfa }}</span>
+            </div>
+
+            {% if feb.est_au_dela_du_seuil %}
+                <div class="seuil-info">
+                    <i data-lucide="info" class="info-icone"></i>
+                    <span>Montant > 50 000 F CFA : un Bon de Commande sera genere lors de la validation.</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ─── ACTIONS DE VALIDATION (CG / DFC) ───────────────── #}
+    {% if peut_valider %}
+        <div class="carte carte-actions">
+            <div class="carte-entete-section">
+                <h3>Actions de validation</h3>
+                <p>En tant que {{ request.user.get_role_display() }}, vous pouvez valider ou rejeter cette FEB.</p>
+            </div>
+
+            <div class="formulaire">
+                <div class="actions-validation">
+                    <form method="post" action="{{ url('feb_valider', kwargs={'pk': feb.pk}) }}" onsubmit="return confirm('Valider cette FEB ?');">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-principal">
+                            <i data-lucide="check-circle-2" class="btn-icone"></i>
+                            Valider la FEB
+                        </button>
+                    </form>
+
+                    <details class="bloc-rejet">
+                        <summary class="btn btn-danger">
+                            <i data-lucide="x-circle" class="btn-icone"></i>
+                            Rejeter avec motif
+                        </summary>
+                        <form method="post" action="{{ url('feb_rejeter', kwargs={'pk': feb.pk}) }}" class="formulaire-rejet">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                            <div class="champ-groupe">
+                                <label for="motif-rejet">Motif du rejet *</label>
+                                <textarea id="motif-rejet" name="motif" rows="3" class="champ-formulaire" required placeholder="Indiquez la raison du rejet..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger">
+                                Confirmer le rejet
+                            </button>
+                        </form>
+                    </details>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

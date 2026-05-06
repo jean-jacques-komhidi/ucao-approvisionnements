@@ -47,10 +47,9 @@
                     </a>
 
                     {# Mes FEB - sera active quand l'app approvisionnements existera #}
-                    <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">
+                    <a href="{{ url('feb_liste') }}" class="nav-item">
                         <i data-lucide="file-text" class="nav-icone"></i>
-                        <span class="nav-label">Mes FEB</span>
-                        <span class="nav-badge">Bientot</span>
+                        <span class="nav-label">{% if request.user.est_demandeur %}Mes FEB{% else %}Toutes les FEB{% endif %}</span>
                     </a>
 
                     <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">

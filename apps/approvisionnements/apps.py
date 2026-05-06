@@ -1,4 +1,4 @@
-"""Configuration de l'app approvisionnements (FEB + BC + Paiement + Suivi)."""
+"""Configuration de l'app approvisionnements (FEB + BC + Paiement)."""
 from django.apps import AppConfig
 
 
@@ -8,3 +8,7 @@ class ApprovisionnementsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.approvisionnements"
     verbose_name = "Cycle Approvisionnements"
+
+    def ready(self):
+        """Import des signaux : numerotation auto FEB-AAAA-NNNN."""
+        from . import signals  # noqa: F401

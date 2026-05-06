@@ -26,7 +26,7 @@ urlpatterns = [
     # A decommenter au fur et a mesure du developpement :
     path("", include("apps.comptes.urls")),
     path("referentiels/", include("apps.referentiels.urls")),
-    # path("", include("apps.approvisionnements.urls")),
+    path("", include("apps.approvisionnements.urls")),
     # path("iot/", include("apps.extensions.iot.urls")),
     # path("predictions/", include("apps.extensions.prediction.urls")),
 ]
