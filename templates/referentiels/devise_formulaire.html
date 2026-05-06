@@ -1,0 +1,93 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ titre_page }} - UCAO{% endblock %}
+{% block page_titre %}{{ titre_page }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('devises_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux devises
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>{{ titre_page }}</h3>
+            <p>
+                <i data-lucide="info" class="info-icone"></i>
+                Taux TVA Senegal autorises : 0%, 10% ou 18% uniquement
+            </p>
+        </div>
+
+        <form method="post" class="formulaire">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+            {% if formulaire.non_field_errors() %}
+                <div class="erreur-globale">
+                    <i data-lucide="alert-circle" class="erreur-icone"></i>
+                    <div>
+                        {% for erreur in formulaire.non_field_errors() %}
+                            <p>{{ erreur }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="grille-champs-2">
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.code.id_for_label }}">Code ISO *</label>
+                    {{ formulaire.code }}
+                    {% if formulaire.code.errors %}
+                        <span class="erreur-champ">{{ formulaire.code.errors[0] }}</span>
+                    {% endif %}
+                </div>
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.symbole.id_for_label }}">Symbole</label>
+                    {{ formulaire.symbole }}
+                </div>
+            </div>
+
+            <div class="champ-groupe">
+                <label for="{{ formulaire.libelle.id_for_label }}">Libelle *</label>
+                {{ formulaire.libelle }}
+                {% if formulaire.libelle.errors %}
+                    <span class="erreur-champ">{{ formulaire.libelle.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="champ-groupe">
+                <label for="{{ formulaire.taux_tva.id_for_label }}">Taux TVA (%) *</label>
+                {{ formulaire.taux_tva }}
+                {% if formulaire.taux_tva.errors %}
+                    <span class="erreur-champ">{{ formulaire.taux_tva.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="champ-groupe-checkbox">
+                {{ formulaire.est_devise_principale }}
+                <label for="{{ formulaire.est_devise_principale.id_for_label }}">
+                    Devise principale du systeme
+                </label>
+            </div>
+            <p class="aide-champ">
+                <i data-lucide="info" class="info-icone"></i>
+                Si cochee, cette devise deviendra la devise par defaut. Toute autre devise
+                marquee comme principale perdra automatiquement ce statut.
+            </p>
+
+            <div class="champ-groupe-checkbox">
+                {{ formulaire.est_active }}
+                <label for="{{ formulaire.est_active.id_for_label }}">Devise active</label>
+            </div>
+
+            <div class="formulaire-actions">
+                <a href="{{ url('devises_liste') }}" class="btn btn-secondaire">Annuler</a>
+                <button type="submit" class="btn btn-principal">
+                    <i data-lucide="save" class="btn-icone"></i>
+                    {% if mode == 'creer' %}Creer{% else %}Enregistrer{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

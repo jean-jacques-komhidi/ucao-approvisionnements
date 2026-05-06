@@ -911,3 +911,908 @@ svg.lucide {
         padding: 1rem;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   IMAGES ARTICLES — VIGNETTES & UPLOAD
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Colonne image dans la liste ────────────────────────────── */
+.col-image {
+    width: 70px;
+    text-align: center;
+}
+
+.vignette-article {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: var(--rayon-md);
+    border: 1px solid var(--bordure);
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.15s;
+    cursor: pointer;
+}
+
+.vignette-article:hover {
+    transform: scale(1.5);
+    box-shadow: var(--ombre-lg);
+    z-index: 10;
+    position: relative;
+    border-color: var(--bordure-focus);
+}
+
+.vignette-vide {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--rayon-md);
+    background-color: var(--fond-hover);
+    border: 1px dashed var(--bordure);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.vignette-vide [data-lucide],
+.vignette-vide svg.lucide {
+    width: 20px;
+    height: 20px;
+    color: var(--texte-tertiaire);
+}
+
+/* ─── Zone d'upload dans le formulaire ───────────────────────── */
+.zone-upload {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background-color: var(--fond-hover);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-md);
+    align-items: center;
+}
+
+.apercu-vide,
+.apercu-existant {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed var(--bordure);
+    border-radius: var(--rayon-md);
+    background-color: var(--fond-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    color: var(--texte-tertiaire);
+}
+
+.apercu-existant {
+    padding: 0.5rem;
+    border-style: solid;
+}
+
+.apercu-existant img,
+#apercu-image {
+    max-width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    border-radius: var(--rayon-sm);
+}
+
+.apercu-icone {
+    width: 40px;
+    height: 40px;
+}
+
+.apercu-legende {
+    font-size: 0.75rem;
+    color: var(--texte-tertiaire);
+    margin-top: 0.25rem;
+}
+
+/* ─── Controles d'upload ─────────────────────────────────────── */
+.upload-controles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.champ-fichier {
+    padding: 0.6rem;
+    background-color: var(--fond-surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-md);
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--texte-principal);
+    cursor: pointer;
+    width: 100%;
+}
+
+.champ-fichier::file-selector-button {
+    background-color: var(--accent);
+    color: var(--texte-inverse);
+    border: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--rayon-sm);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 0.75rem;
+}
+
+.champ-fichier::file-selector-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.upload-info {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--texte-tertiaire);
+    margin: 0;
+}
+
+.info-icone {
+    width: 14px;
+    height: 14px;
+    color: var(--info);
+    flex-shrink: 0;
+}
+
+/* ─── Responsive zone upload ─────────────────────────────────── */
+@media (max-width: 640px) {
+    .zone-upload {
+        grid-template-columns: 1fr;
+    }
+
+    .apercu-vide,
+    .apercu-existant {
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR — LIENS DESACTIVES & BADGES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Liens "bientot" : style desactive */
+.nav-item-disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    position: relative;
+}
+
+.nav-item-disabled:hover {
+    background-color: transparent !important;
+    color: var(--texte-secondaire) !important;
+}
+
+.nav-item-disabled .nav-icone {
+    color: var(--texte-tertiaire) !important;
+}
+
+/* Badge "Bientot" */
+.nav-badge {
+    margin-left: auto;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    background-color: var(--neutre-fond);
+    color: var(--neutre-texte);
+    border-radius: var(--rayon-full);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Icone lien externe (admin Django) */
+.nav-icone-externe {
+    margin-left: auto;
+    width: 12px;
+    height: 12px;
+    color: var(--texte-tertiaire);
+    opacity: 0.6;
+}
+
+.nav-item:hover .nav-icone-externe {
+    opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPOSANTS COMPLEMENTAIRES (referentiels)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Bloc info dans entete formulaire ───────────────────────── */
+.carte-entete-section p {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* ─── Bandeau d'information ──────────────────────────────────── */
+.info-bandeau {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--info-fond);
+    border: 1px solid var(--info);
+    border-radius: var(--rayon-md);
+    color: var(--info);
+    font-size: 0.875rem;
+}
+
+.info-bandeau-icone {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+[data-theme="dark"] .info-bandeau {
+    color: var(--texte-principal);
+}
+
+/* ─── Bloc info code fournisseur (modification) ──────────────── */
+.info-bloc {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--fond-hover);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-md);
+}
+
+.info-bloc-icone {
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
+}
+
+.info-bloc-label {
+    font-size: 0.75rem;
+    color: var(--texte-secondaire);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.1rem;
+}
+
+.info-bloc-valeur {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--texte-principal);
+    font-family: 'Courier New', monospace;
+}
+
+/* ─── Aide sous un champ ─────────────────────────────────────── */
+.aide-champ {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--texte-secondaire);
+    margin-top: 0.25rem;
+    padding-left: 1.5rem;
+}
+
+/* ─── Cellule avec plusieurs statuts ─────────────────────────── */
+.cellule-statuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+/* ─── Ligne devise principale ────────────────────────────────── */
+.ligne-principale {
+    background-color: var(--fond-hover);
+}
+
+.ligne-principale td {
+    border-color: var(--bordure-focus);
+}
+
+/* ─── Texte vide (placeholder) ───────────────────────────────── */
+.texte-vide {
+    color: var(--texte-tertiaire);
+    font-size: 0.875rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   KPI — CARTES STATISTIQUES EN HAUT DES LISTES
+   ═══════════════════════════════════════════════════════════════ */
+
+.grille-kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.kpi-carte {
+    background-color: var(--fond-surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-lg);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.15s;
+}
+
+.kpi-carte:hover {
+    box-shadow: var(--ombre-md);
+    border-color: var(--bordure-focus);
+    transform: translateY(-2px);
+}
+
+.kpi-icone-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rayon-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.kpi-icone {
+    width: 22px;
+    height: 22px;
+}
+
+/* Variantes de couleurs KPI (douces) */
+.kpi-bleu {
+    background-color: #DBEAFE;
+    color: #2563EB;
+}
+
+.kpi-vert {
+    background-color: #D1FAE5;
+    color: #059669;
+}
+
+.kpi-violet {
+    background-color: #EDE9FE;
+    color: #7C3AED;
+}
+
+.kpi-jaune {
+    background-color: #FEF3C7;
+    color: #D97706;
+}
+
+.kpi-gris {
+    background-color: var(--neutre-fond);
+    color: var(--neutre-texte);
+}
+
+/* Mode sombre : on assombrit les fonds, mais on garde les couleurs vives */
+[data-theme="dark"] .kpi-bleu {
+    background-color: rgba(37, 99, 235, 0.15);
+    color: #60A5FA;
+}
+[data-theme="dark"] .kpi-vert {
+    background-color: rgba(5, 150, 105, 0.15);
+    color: #34D399;
+}
+[data-theme="dark"] .kpi-violet {
+    background-color: rgba(124, 58, 237, 0.15);
+    color: #A78BFA;
+}
+[data-theme="dark"] .kpi-jaune {
+    background-color: rgba(217, 119, 6, 0.15);
+    color: #FBBF24;
+}
+
+.kpi-corps {
+    flex: 1;
+    min-width: 0;
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    color: var(--texte-secondaire);
+    margin: 0;
+    font-weight: 500;
+}
+
+.kpi-valeur {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--texte-principal);
+    line-height: 1.1;
+    margin: 0.15rem 0;
+}
+
+.kpi-detail {
+    font-size: 0.7rem;
+    color: var(--texte-tertiaire);
+    margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BARRE DE RECHERCHE INTEGREE (avec bouton dans le champ)
+   ═══════════════════════════════════════════════════════════════ */
+
+.champ-recherche-integre {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    align-items: center;
+}
+
+.champ-recherche-integre .recherche-icone {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--texte-secondaire);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.champ-recherche-integre .champ-formulaire {
+    padding-left: 2.5rem;
+    padding-right: 3rem;
+    width: 100%;
+}
+
+.btn-recherche-integre {
+    position: absolute;
+    right: 0.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    background-color: var(--accent);
+    color: var(--texte-inverse);
+    border: none;
+    border-radius: var(--rayon-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s;
+}
+
+.btn-recherche-integre:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-recherche-integre [data-lucide],
+.btn-recherche-integre svg.lucide {
+    width: 14px;
+    height: 14px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GRILLE D'ARTICLES (style e-commerce)
+   ═══════════════════════════════════════════════════════════════ */
+
+.grille-articles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+.carte-article {
+    background-color: var(--fond-surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s;
+}
+
+.carte-article:hover {
+    box-shadow: var(--ombre-lg);
+    border-color: var(--bordure-focus);
+    transform: translateY(-3px);
+}
+
+.carte-article-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background-color: var(--fond-hover);
+    overflow: hidden;
+}
+
+.carte-article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.carte-article:hover .carte-article-image img {
+    transform: scale(1.05);
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--texte-tertiaire);
+}
+
+.image-placeholder-icone {
+    width: 48px;
+    height: 48px;
+}
+
+.image-placeholder p {
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.carte-article-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: var(--texte-principal);
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--rayon-full);
+    font-size: 0.7rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--ombre-sm);
+}
+
+[data-theme="dark"] .carte-article-badge {
+    background-color: rgba(20, 20, 20, 0.95);
+    color: var(--texte-principal);
+}
+
+.carte-article-corps {
+    padding: 1rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.carte-article-titre {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--texte-principal);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.carte-article-description {
+    font-size: 0.8rem;
+    color: var(--texte-secondaire);
+    margin: 0;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.carte-article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--bordure-claire);
+}
+
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--texte-secondaire);
+}
+
+.meta-icone {
+    width: 12px;
+    height: 12px;
+}
+
+.carte-article-actions {
+    padding: 0.75rem 1.25rem;
+    background-color: var(--fond-hover);
+    border-top: 1px solid var(--bordure-claire);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.carte-article-actions .btn {
+    flex: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOUTONS COMPLEMENTAIRES (petit + danger + actions tableaux)
+   ═══════════════════════════════════════════════════════════════ */
+
+.btn-petit {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.btn-petit .btn-icone {
+    width: 12px;
+    height: 12px;
+}
+
+.btn-danger {
+    background-color: var(--fond-surface);
+    color: var(--error);
+    border: 1px solid var(--error-fond);
+}
+
+.btn-danger:hover {
+    background-color: var(--error-fond);
+    border-color: var(--error);
+}
+
+[data-theme="dark"] .btn-danger {
+    background-color: transparent;
+    color: var(--error);
+    border-color: var(--error);
+}
+
+[data-theme="dark"] .btn-danger:hover {
+    background-color: var(--error);
+    color: white;
+}
+
+/* ─── Boutons d'action dans tableaux (modifier/supprimer) ────── */
+.col-actions {
+    width: 220px;
+    text-align: right;
+}
+
+.boutons-actions {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    .grille-kpi {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grille-articles {
+        grid-template-columns: 1fr;
+    }
+
+    .col-actions {
+        width: auto;
+    }
+
+    .boutons-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .boutons-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .grille-kpi {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLEAUX — REFONTE STRUCTURE (fix chevauchement colonnes)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Force une largeur fixe pour les colonnes */
+.tableau {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+}
+
+/* En-tetes plus marques */
+.tableau thead tr {
+    background-color: var(--fond-hover);
+}
+
+.tableau thead th {
+    text-align: left;
+    padding: 0.875rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--texte-secondaire);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--bordure);
+    white-space: nowrap;
+    background-color: var(--fond-hover);
+}
+
+/* Cellules avec bordures et alignement vertical */
+.tableau tbody td {
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: var(--texte-principal);
+    border-bottom: 1px solid var(--bordure-claire);
+    vertical-align: middle;
+    line-height: 1.5;
+}
+
+/* Derniere ligne sans bordure */
+.tableau tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Hover sur ligne */
+.tableau tbody tr {
+    transition: background-color 0.15s;
+}
+
+.tableau tbody tr:hover {
+    background-color: var(--fond-hover);
+}
+
+/* ─── Cellule contact (icone + texte sur ligne) ──────────────── */
+.cellule-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.contact-ligne {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--texte-principal);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.contact-ligne-icone {
+    width: 14px;
+    height: 14px;
+    color: var(--texte-secondaire);
+    flex-shrink: 0;
+}
+
+.contact-ligne span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ─── Largeurs fixes pour les colonnes recurrentes ───────────── */
+.col-code {
+    width: 90px;
+    white-space: nowrap;
+}
+
+.col-nom {
+    min-width: 200px;
+}
+
+.col-type {
+    width: 130px;
+    white-space: nowrap;
+}
+
+.col-contact {
+    min-width: 220px;
+    max-width: 280px;
+}
+
+.col-date {
+    width: 110px;
+    white-space: nowrap;
+    color: var(--texte-secondaire);
+}
+
+.col-designation {
+    min-width: 180px;
+}
+
+.col-description {
+    min-width: 200px;
+    color: var(--texte-secondaire);
+}
+
+.col-cree-par {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.col-actions {
+    width: 230px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* ─── Boutons d'action dans tableau ─────────────────────────── */
+.boutons-actions {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+}
+
+/* ─── Tableau dans une carte : pas de double bordure ─────────── */
+.carte > .tableau {
+    border-radius: 0;
+}
+
+.carte > .tableau thead th:first-child {
+    padding-left: 1.5rem;
+}
+
+.carte > .tableau thead th:last-child {
+    padding-right: 1.5rem;
+}
+
+.carte > .tableau tbody td:first-child {
+    padding-left: 1.5rem;
+}
+
+.carte > .tableau tbody td:last-child {
+    padding-right: 1.5rem;
+}
+
+/* ─── Conteneur scrollable pour mobile ──────────────────────── */
+.tableau-conteneur {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Responsive : tableau scrollable sur mobile ─────────────── */
+@media (max-width: 1024px) {
+    .tableau-conteneur {
+        overflow-x: auto;
+    }
+
+    .tableau {
+        min-width: 800px;
+    }
+}
+
+@media (max-width: 768px) {
+    .col-actions {
+        width: auto;
+    }
+
+    .boutons-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.4rem;
+    }
+
+    .boutons-actions .btn {
+        width: 100%;
+    }
+}

@@ -1,0 +1,105 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ titre_page }} - UCAO{% endblock %}
+{% block page_titre %}{{ titre_page }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('fournisseurs_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux fournisseurs
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>{{ titre_page }}</h3>
+            <p>
+                <i data-lucide="info" class="info-icone"></i>
+                Le code fournisseur est genere automatiquement (F0001, F0002...) a la creation
+            </p>
+        </div>
+
+        <form method="post" class="formulaire">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+            {% if formulaire.non_field_errors() %}
+                <div class="erreur-globale">
+                    <i data-lucide="alert-circle" class="erreur-icone"></i>
+                    <div>
+                        {% for erreur in formulaire.non_field_errors() %}
+                            <p>{{ erreur }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if mode == 'modifier' and objet %}
+                <div class="info-bloc">
+                    <i data-lucide="hash" class="info-bloc-icone"></i>
+                    <div>
+                        <p class="info-bloc-label">Code fournisseur</p>
+                        <p class="info-bloc-valeur">{{ objet.code }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="grille-champs-2">
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.nom.id_for_label }}">Nom / Raison sociale *</label>
+                    {{ formulaire.nom }}
+                    {% if formulaire.nom.errors %}
+                        <span class="erreur-champ">{{ formulaire.nom.errors[0] }}</span>
+                    {% endif %}
+                </div>
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.type_personne.id_for_label }}">Type *</label>
+                    {{ formulaire.type_personne }}
+                </div>
+            </div>
+
+            <div class="grille-champs-2">
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.telephone.id_for_label }}">Telephone</label>
+                    {{ formulaire.telephone }}
+                </div>
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.email.id_for_label }}">Email</label>
+                    {{ formulaire.email }}
+                    {% if formulaire.email.errors %}
+                        <span class="erreur-champ">{{ formulaire.email.errors[0] }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="champ-groupe">
+                <label for="{{ formulaire.adresse.id_for_label }}">Adresse postale</label>
+                {{ formulaire.adresse }}
+            </div>
+
+            <div class="grille-champs-2">
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.ninea.id_for_label }}">NINEA</label>
+                    {{ formulaire.ninea }}
+                </div>
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.rccm.id_for_label }}">RCCM</label>
+                    {{ formulaire.rccm }}
+                </div>
+            </div>
+
+            <div class="champ-groupe-checkbox">
+                {{ formulaire.est_actif }}
+                <label for="{{ formulaire.est_actif.id_for_label }}">Fournisseur actif</label>
+            </div>
+
+            <div class="formulaire-actions">
+                <a href="{{ url('fournisseurs_liste') }}" class="btn btn-secondaire">Annuler</a>
+                <button type="submit" class="btn btn-principal">
+                    <i data-lucide="save" class="btn-icone"></i>
+                    {% if mode == 'creer' %}Creer{% else %}Enregistrer{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

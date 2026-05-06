@@ -1,0 +1,131 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ titre_page }} - UCAO{% endblock %}
+{% block page_titre %}{{ titre_page }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('articles_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour au catalogue
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>{{ titre_page }}</h3>
+            <p>Renseignez les informations de l'article et ajoutez une image (optionnel)</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="formulaire">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+            {% if formulaire.non_field_errors() %}
+                <div class="erreur-globale">
+                    <i data-lucide="alert-circle" class="erreur-icone"></i>
+                    <div>
+                        {% for erreur in formulaire.non_field_errors() %}
+                            <p>{{ erreur }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="champ-groupe">
+                <label for="{{ formulaire.designation.id_for_label }}">Designation *</label>
+                {{ formulaire.designation }}
+                {% if formulaire.designation.errors %}
+                    <span class="erreur-champ">{{ formulaire.designation.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="grille-champs-2">
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.unite.id_for_label }}">Unite *</label>
+                    {{ formulaire.unite }}
+                </div>
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.nature.id_for_label }}">Nature *</label>
+                    {{ formulaire.nature }}
+                </div>
+            </div>
+
+            <div class="champ-groupe">
+                <label for="{{ formulaire.description.id_for_label }}">Description</label>
+                {{ formulaire.description }}
+            </div>
+
+            {# ─── ZONE D'UPLOAD D'IMAGE ─────────────────────────── #}
+            <div class="champ-groupe">
+                <label>Image de l'article</label>
+
+                <div class="zone-upload" id="zone-upload">
+                    {% if mode == 'modifier' and objet.url_image %}
+                        <div class="apercu-existant">
+                            <img src="{{ objet.url_image }}" alt="{{ objet.designation }}" id="apercu-image">
+                            <p class="apercu-legende">Image actuelle</p>
+                        </div>
+                    {% else %}
+                        <div class="apercu-vide" id="apercu-vide">
+                            <i data-lucide="image" class="apercu-icone"></i>
+                            <p>Aucune image selectionnee</p>
+                        </div>
+                        <img id="apercu-image" alt="Apercu" style="display:none;">
+                    {% endif %}
+
+                    <div class="upload-controles">
+                        {{ formulaire.image }}
+                        <p class="upload-info">
+                            <i data-lucide="info" class="info-icone"></i>
+                            Format JPG, PNG ou WebP. Maximum 5 Mo.
+                        </p>
+                    </div>
+                </div>
+
+                {% if formulaire.image.errors %}
+                    <span class="erreur-champ">{{ formulaire.image.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="champ-groupe-checkbox">
+                {{ formulaire.est_actif }}
+                <label for="{{ formulaire.est_actif.id_for_label }}">Article actif</label>
+            </div>
+
+            <div class="formulaire-actions">
+                <a href="{{ url('articles_liste') }}" class="btn btn-secondaire">Annuler</a>
+                <button type="submit" class="btn btn-principal">
+                    <i data-lucide="save" class="btn-icone"></i>
+                    {% if mode == 'creer' %}Creer{% else %}Enregistrer{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputImage = document.querySelector('input[type="file"][name="image"]');
+    const apercuImg = document.getElementById('apercu-image');
+    const apercuVide = document.getElementById('apercu-vide');
+
+    if (inputImage) {
+        inputImage.addEventListener('change', function(event) {
+            const fichier = event.target.files[0];
+            if (fichier) {
+                const lecteur = new FileReader();
+                lecteur.onload = function(e) {
+                    if (apercuImg) {
+                        apercuImg.src = e.target.result;
+                        apercuImg.style.display = 'block';
+                    }
+                    if (apercuVide) {
+                        apercuVide.style.display = 'none';
+                    }
+                };
+                lecteur.readAsDataURL(fichier);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

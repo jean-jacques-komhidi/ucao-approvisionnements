@@ -1,0 +1,133 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Devises - UCAO{% endblock %}
+{% block page_titre %}Devises et taux TVA{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="grille-kpi">
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-jaune">
+                <i data-lucide="star" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Devise principale</p>
+                <p class="kpi-valeur">{{ kpi.principale_code }}</p>
+                <p class="kpi-detail">TVA {{ kpi.principale_tva }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-bleu">
+                <i data-lucide="coins" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Devises totales</p>
+                <p class="kpi-valeur">{{ kpi.total }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-vert">
+                <i data-lucide="check-circle-2" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Actives</p>
+                <p class="kpi-valeur">{{ kpi.actives }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-gris">
+                <i data-lucide="x-circle" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Inactives</p>
+                <p class="kpi-valeur">{{ kpi.inactives }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>Liste des devises</h2>
+            <p class="bandeau-sous-titre">{{ total }} devise(s)</p>
+        </div>
+        <a href="{{ url('devise_creer') }}" class="btn btn-principal">
+            <i data-lucide="plus" class="btn-icone"></i>
+            Nouvelle devise
+        </a>
+    </div>
+
+    <div class="info-bandeau">
+        <i data-lucide="info" class="info-bandeau-icone"></i>
+        <div>
+            <strong>Reglementation Senegal :</strong> les seuls taux TVA autorises sont 0%, 10% et 18%.
+            Une seule devise peut etre marquee comme "principale" a la fois.
+        </div>
+    </div>
+
+    <div class="carte">
+        {% if devises %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th class="col-code">Code</th>
+                            <th class="col-nom">Libelle</th>
+                            <th style="width: 100px;">Symbole</th>
+                            <th style="width: 90px;">TVA</th>
+                            <th style="min-width: 200px;">Statut</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for devise in devises %}
+                            <tr {% if devise.est_devise_principale %}class="ligne-principale"{% endif %}>
+                                <td class="col-code"><strong>{{ devise.code }}</strong></td>
+                                <td class="col-nom">{{ devise.libelle }}</td>
+                                <td>{{ devise.symbole or '—' }}</td>
+                                <td><span class="badge badge-info">{{ devise.taux_tva }}%</span></td>
+                                <td>
+                                    <div class="cellule-statuts">
+                                        {% if devise.est_devise_principale %}
+                                            <span class="badge badge-success">
+                                                <i data-lucide="star" class="badge-icone"></i> Principale
+                                            </span>
+                                        {% endif %}
+                                        {% if devise.est_active %}
+                                            <span class="badge badge-info">Active</span>
+                                        {% else %}
+                                            <span class="badge badge-neutre">Inactive</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="col-actions">
+                                    <div class="boutons-actions">
+                                        <a href="{{ url('devise_modifier', kwargs={'pk': devise.pk}) }}" class="btn btn-secondaire btn-petit">
+                                            <i data-lucide="edit-2" class="btn-icone"></i>
+                                            Modifier
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="coins" class="etat-vide-icone"></i>
+                <h3>Aucune devise</h3>
+                <p>Commencez par creer la devise principale (XOF / Franc CFA BCEAO).</p>
+                <a href="{{ url('devise_creer') }}" class="btn btn-principal">
+                    <i data-lucide="plus" class="btn-icone"></i>
+                    Creer une devise
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

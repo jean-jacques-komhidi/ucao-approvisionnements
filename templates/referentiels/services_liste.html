@@ -1,0 +1,138 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Services exterieurs - UCAO{% endblock %}
+{% block page_titre %}Services exterieurs{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    {# ─── KPI ──────────────────────────────────────────────── #}
+    <div class="grille-kpi">
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-bleu">
+                <i data-lucide="briefcase" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Services actifs</p>
+                <p class="kpi-valeur">{{ kpi.total_actifs }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-gris">
+                <i data-lucide="archive" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Archives</p>
+                <p class="kpi-valeur">{{ kpi.total_inactifs }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>Liste des services</h2>
+            <p class="bandeau-sous-titre">{{ total }} service(s)</p>
+        </div>
+        <a href="{{ url('service_creer') }}" class="btn btn-principal">
+            <i data-lucide="plus" class="btn-icone"></i>
+            Nouveau service
+        </a>
+    </div>
+
+    <div class="carte">
+        <div class="filtres-zone">
+            <form method="get" class="formulaire-filtres">
+                <div class="champ-recherche-integre">
+                    <i data-lucide="search" class="recherche-icone"></i>
+                    <input type="text" name="q" value="{{ recherche }}"
+                           placeholder="Rechercher un service..." class="champ-formulaire">
+                    <button type="submit" class="btn-recherche-integre">
+                        <i data-lucide="arrow-right" class="btn-icone"></i>
+                    </button>
+                </div>
+                {% if recherche %}
+                    <a href="{{ url('services_liste') }}" class="btn btn-secondaire">
+                        <i data-lucide="x" class="btn-icone"></i>
+                        Reinitialiser
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if services %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th class="col-designation">Designation</th>
+                            <th class="col-description">Description</th>
+                            <th class="col-cree-par">Cree par</th>
+                            <th class="col-date">Date</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in services %}
+                            <tr>
+                                <td class="col-designation"><strong>{{ service.designation }}</strong></td>
+                                <td class="col-description">
+                                    {% if service.description %}
+                                        {{ service.description|truncate(70) }}
+                                    {% else %}
+                                        <span class="texte-vide">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="col-cree-par">{{ service.cree_par.nom_complet }}</td>
+                                <td class="col-date">{{ service.date_creation|date_fr }}</td>
+                                <td class="col-actions">
+                                    <div class="boutons-actions">
+                                        <a href="{{ url('service_modifier', kwargs={'pk': service.pk}) }}" class="btn btn-secondaire btn-petit">
+                                            <i data-lucide="edit-2" class="btn-icone"></i>
+                                            Modifier
+                                        </a>
+                                        <form method="post" action="{{ url('service_supprimer', kwargs={'pk': service.pk}) }}" class="form-inline" onsubmit="return confirm('Retirer ce service ?');">
+                                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                            <button type="submit" class="btn btn-danger btn-petit">
+                                                <i data-lucide="trash-2" class="btn-icone"></i>
+                                                Supprimer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if services.has_other_pages %}
+                <div class="pagination">
+                    {% if services.has_previous() %}
+                        <a href="?page={{ services.previous_page_number() }}{% if recherche %}&q={{ recherche }}{% endif %}" class="btn btn-secondaire">
+                            <i data-lucide="chevron-left" class="btn-icone"></i> Precedent
+                        </a>
+                    {% endif %}
+                    <span class="pagination-info">Page {{ services.number }} / {{ services.paginator.num_pages }}</span>
+                    {% if services.has_next() %}
+                        <a href="?page={{ services.next_page_number() }}{% if recherche %}&q={{ recherche }}{% endif %}" class="btn btn-secondaire">
+                            Suivant <i data-lucide="chevron-right" class="btn-icone"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="briefcase" class="etat-vide-icone"></i>
+                <h3>Aucun service</h3>
+                <p>Commencez par creer votre premier service exterieur.</p>
+                <a href="{{ url('service_creer') }}" class="btn btn-principal">
+                    <i data-lucide="plus" class="btn-icone"></i>
+                    Creer un service
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import include, path
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 
 
 def vue_accueil_temporaire(request):
@@ -23,7 +25,7 @@ urlpatterns = [
 
     # A decommenter au fur et a mesure du developpement :
     path("", include("apps.comptes.urls")),
-    # path("referentiels/", include("apps.referentiels.urls")),
+    path("referentiels/", include("apps.referentiels.urls")),
     # path("", include("apps.approvisionnements.urls")),
     # path("iot/", include("apps.extensions.iot.urls")),
     # path("predictions/", include("apps.extensions.prediction.urls")),
@@ -31,12 +33,14 @@ urlpatterns = [
 
 
 if settings.DEBUG:
+    urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(
-        settings.STATIC_URL, document_root=settings.STATIC_ROOT
-    )
-    urlpatterns += static(
-        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT,
     )
 
-    import debug_toolbar
-    urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
+    try:
+        import debug_toolbar
+        urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
+    except ImportError:
+        pass

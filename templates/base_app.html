@@ -36,51 +36,83 @@
             </div>
 
             <nav class="sidebar-nav">
+
+                {# ─── Section : Menu principal ─────────────────────────── #}
                 <div class="nav-section">
                     <div class="nav-section-titre">Menu principal</div>
+
                     <a href="{{ url('tableau_de_bord') }}" class="nav-item active">
                         <i data-lucide="layout-dashboard" class="nav-icone"></i>
                         <span class="nav-label">Tableau de bord</span>
                     </a>
-                    <a href="#" class="nav-item">
+
+                    {# Mes FEB - sera active quand l'app approvisionnements existera #}
+                    <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">
                         <i data-lucide="file-text" class="nav-icone"></i>
                         <span class="nav-label">Mes FEB</span>
+                        <span class="nav-badge">Bientot</span>
                     </a>
-                    <a href="#" class="nav-item">
+
+                    <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">
                         <i data-lucide="clipboard-list" class="nav-icone"></i>
                         <span class="nav-label">Bons de commande</span>
+                        <span class="nav-badge">Bientot</span>
                     </a>
-                    <a href="#" class="nav-item">
+
+                    <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">
                         <i data-lucide="wallet" class="nav-icone"></i>
                         <span class="nav-label">Paiements</span>
+                        <span class="nav-badge">Bientot</span>
                     </a>
                 </div>
 
+                {# ─── Section : Referentiels ──────────────────────────── #}
                 <div class="nav-section">
                     <div class="nav-section-titre">Reference</div>
-                    <a href="#" class="nav-item">
+
+                    <a href="{{ url('articles_liste') }}" class="nav-item">
                         <i data-lucide="package" class="nav-icone"></i>
                         <span class="nav-label">Articles</span>
                     </a>
-                    <a href="#" class="nav-item">
+
+                    <a href="{{ url('services_liste') }}" class="nav-item">
+                        <i data-lucide="briefcase" class="nav-icone"></i>
+                        <span class="nav-label">Services</span>
+                    </a>
+
+                    <a href="{{ url('fournisseurs_liste') }}" class="nav-item">
                         <i data-lucide="building-2" class="nav-icone"></i>
                         <span class="nav-label">Fournisseurs</span>
                     </a>
+
+                    {# Devises : reserve DFC ou Admin #}
+                    {% if request.user.role == 'dfc' or request.user.est_admin %}
+                        <a href="{{ url('devises_liste') }}" class="nav-item">
+                            <i data-lucide="coins" class="nav-icone"></i>
+                            <span class="nav-label">Devises &amp; TVA</span>
+                        </a>
+                    {% endif %}
                 </div>
 
+                {# ─── Section : Administration (Admin uniquement) ──── #}
                 {% if request.user.est_admin %}
                 <div class="nav-section">
                     <div class="nav-section-titre">Administration</div>
-                    <a href="/admin-django/" class="nav-item">
+
+                    <a href="/admin-django/" class="nav-item" target="_blank">
                         <i data-lucide="settings" class="nav-icone"></i>
                         <span class="nav-label">Admin Django</span>
+                        <i data-lucide="external-link" class="nav-icone-externe"></i>
                     </a>
-                    <a href="#" class="nav-item">
+
+                    <a href="/admin-django/comptes/utilisateur/" class="nav-item" target="_blank">
                         <i data-lucide="users" class="nav-icone"></i>
                         <span class="nav-label">Utilisateurs</span>
+                        <i data-lucide="external-link" class="nav-icone-externe"></i>
                     </a>
                 </div>
                 {% endif %}
+
             </nav>
 
             <div class="sidebar-footer">

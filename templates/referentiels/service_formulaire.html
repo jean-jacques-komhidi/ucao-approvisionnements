@@ -1,0 +1,64 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ titre_page }} - UCAO{% endblock %}
+{% block page_titre %}{{ titre_page }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('services_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux services
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>{{ titre_page }}</h3>
+            <p>Renseignez les informations du service exterieur</p>
+        </div>
+
+        <form method="post" class="formulaire">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+            {% if formulaire.non_field_errors() %}
+                <div class="erreur-globale">
+                    <i data-lucide="alert-circle" class="erreur-icone"></i>
+                    <div>
+                        {% for erreur in formulaire.non_field_errors() %}
+                            <p>{{ erreur }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="champ-groupe">
+                <label for="{{ formulaire.designation.id_for_label }}">Designation *</label>
+                {{ formulaire.designation }}
+                {% if formulaire.designation.errors %}
+                    <span class="erreur-champ">{{ formulaire.designation.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="champ-groupe">
+                <label for="{{ formulaire.description.id_for_label }}">Description</label>
+                {{ formulaire.description }}
+                {% if formulaire.description.errors %}
+                    <span class="erreur-champ">{{ formulaire.description.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="champ-groupe-checkbox">
+                {{ formulaire.est_actif }}
+                <label for="{{ formulaire.est_actif.id_for_label }}">Service actif</label>
+            </div>
+
+            <div class="formulaire-actions">
+                <a href="{{ url('services_liste') }}" class="btn btn-secondaire">Annuler</a>
+                <button type="submit" class="btn btn-principal">
+                    <i data-lucide="save" class="btn-icone"></i>
+                    {% if mode == 'creer' %}Creer{% else %}Enregistrer{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
