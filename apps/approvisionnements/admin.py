@@ -1,7 +1,7 @@
 """Admin Django pour l'app approvisionnements."""
 from django.contrib import admin
 
-from .models import FicheExpression, LigneFiche
+from .models import BonCommande, FicheExpression, LigneFiche
 
 
 class LigneFicheInline(admin.TabularInline):
@@ -29,29 +29,46 @@ class FicheExpressionAdmin(admin.ModelAdmin):
         "numero", "montant_ht", "montant_tva", "montant_ttc",
         "date_creation", "date_modification", "date_validation", "date_suppression",
     )
+    inlines = [LigneFicheInline]
+
+
+@admin.register(BonCommande)
+class BonCommandeAdmin(admin.ModelAdmin):
+    list_display = (
+        "numero", "fiche", "fournisseur", "statut",
+        "montant_ttc", "est_envoye_fournisseur", "date_creation",
+    )
+    list_filter = ("statut", "est_envoye_fournisseur", "signe_en_po", "est_supprime")
+    search_fields = ("numero", "fiche__numero", "fournisseur__nom")
+    ordering = ("-date_creation",)
+    readonly_fields = (
+        "numero", "fiche", "fournisseur",
+        "montant_ht", "montant_tva", "montant_ttc",
+        "date_creation", "date_modification",
+        "date_validation", "date_envoi_fournisseur", "date_suppression",
+    )
     fieldsets = (
         ("Identification", {
-            "fields": ("numero", "objet", "statut", "origine"),
-        }),
-        ("Acteurs", {
-            "fields": ("demandeur", "fournisseur", "validateur"),
+            "fields": ("numero", "statut", "fiche", "fournisseur"),
         }),
         ("Montants", {
             "fields": ("montant_ht", "taux_tva", "montant_tva", "montant_ttc"),
         }),
-        ("Suppression / Motif", {
-            "fields": ("est_supprimee", "motif_action"),
+        ("Validation", {
+            "fields": ("validateur", "signe_en_po", "est_verrouille", "date_validation"),
+        }),
+        ("Envoi fournisseur", {
+            "fields": ("est_envoye_fournisseur", "date_envoi_fournisseur"),
+        }),
+        ("Suppression", {
+            "fields": ("est_supprime", "motif_suppression", "date_suppression"),
             "classes": ("collapse",),
         }),
-        ("Tracabilite", {
-            "fields": (
-                "date_creation", "date_modification",
-                "date_validation", "date_suppression",
-            ),
+        ("Dates systeme", {
+            "fields": ("date_creation", "date_modification"),
             "classes": ("collapse",),
         }),
     )
-    inlines = [LigneFicheInline]
 
 
 @admin.register(LigneFiche)

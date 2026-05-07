@@ -1,0 +1,49 @@
+{% extends "notifications/emails/base_email.html" %}
+
+{% block bandeau %}
+<tr>
+    <td style="background-color: #FEE2E2; padding: 15px 40px; border-bottom: 3px solid #DC2626;">
+        <p style="color: #991B1B; margin: 0; font-size: 14px; font-weight: 600;">
+            ❌ FEB rejetee
+        </p>
+    </td>
+</tr>
+{% endblock %}
+
+{% block contenu %}
+<h2 style="color: #1A1A1A; font-size: 22px; margin: 0 0 20px 0;">
+    Votre FEB a ete rejetee
+</h2>
+
+<p style="color: #444444; font-size: 15px; line-height: 1.6;">
+    Votre FEB <strong>{{ feb.numero }}</strong> n'a pas pu etre validee.
+    Veuillez consulter le motif ci-dessous et soumettre une nouvelle demande corrigee.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #FEF2F2; border-left: 4px solid #DC2626; border-radius: 4px; padding: 20px; margin: 25px 0;">
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">Numero :</td>
+        <td style="padding: 5px 0; font-weight: 600; color: #1A1A1A;">{{ feb.numero }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">Objet :</td>
+        <td style="padding: 5px 0; color: #1A1A1A;">{{ feb.objet }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px; vertical-align: top;">Motif :</td>
+        <td style="padding: 5px 0; color: #DC2626; font-style: italic;">
+            "{{ feb.motif_action }}"
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin: 25px 0;">
+    <tr>
+        <td>
+            <a href="{{ url_feb }}" style="background-color: #1A1A1A; color: #FFFFFF; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block;">
+                Voir le detail →
+            </a>
+        </td>
+    </tr>
+</table>
+{% endblock %}

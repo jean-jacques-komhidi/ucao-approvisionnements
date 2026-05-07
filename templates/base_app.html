@@ -46,17 +46,29 @@
                         <span class="nav-label">Tableau de bord</span>
                     </a>
 
+                    <a href="{{ url('notifications_liste') }}" class="nav-item">
+                        <i data-lucide="bell" class="nav-icone"></i>
+                        <span class="nav-label">Notifications</span>
+                        {% if request.user.is_authenticated %}
+                            {% set non_lues = request.user.notifications_recues.filter(est_lue=False).count() %}
+                            {% if non_lues > 0 %}
+                                <span class="nav-badge nav-badge-rouge">{{ non_lues }}</span>
+                            {% endif %}
+                        {% endif %}
+                    </a>
+
                     {# Mes FEB - sera active quand l'app approvisionnements existera #}
                     <a href="{{ url('feb_liste') }}" class="nav-item">
                         <i data-lucide="file-text" class="nav-icone"></i>
                         <span class="nav-label">{% if request.user.est_demandeur %}Mes FEB{% else %}Toutes les FEB{% endif %}</span>
                     </a>
 
-                    <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">
-                        <i data-lucide="clipboard-list" class="nav-icone"></i>
-                        <span class="nav-label">Bons de commande</span>
-                        <span class="nav-badge">Bientot</span>
-                    </a>
+                    {% if request.user.role in ['dg', 'dfc', 'cg', 'comptable', 'admin'] %}
+                        <a href="{{ url('bc_liste') }}" class="nav-item">
+                            <i data-lucide="clipboard-list" class="nav-icone"></i>
+                            <span class="nav-label">Bons de commande</span>
+                        </a>
+                    {% endif %}
 
                     <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">
                         <i data-lucide="wallet" class="nav-icone"></i>

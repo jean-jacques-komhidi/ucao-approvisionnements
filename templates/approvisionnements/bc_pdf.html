@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ bc.numero }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.2cm 1.5cm;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #000000;
+            font-size: 9.5pt;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ─── ENTETE : LOGO + DATES ────────────────── */
+        .pdf-entete {
+            width: 100%;
+            margin-bottom: 0.2cm;
+            border-collapse: collapse;
+        }
+
+        .pdf-logo-cell {
+            width: 25%;
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .pdf-logo {
+            height: 60px;
+        }
+
+        .pdf-dates-cell {
+            width: 75%;
+            vertical-align: top;
+            text-align: right;
+            font-size: 11pt;
+            padding-top: 0.2cm;
+        }
+
+        .pdf-dates-cell p {
+            margin: 0.05cm 0;
+        }
+
+        .pdf-dates-cell strong {
+            font-weight: bold;
+        }
+
+        /* ─── SOUS-TITRE INSTITUTION ───────────────── */
+        .pdf-sous-institution {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-top: 0.1cm;
+            margin-bottom: 0.2cm;
+        }
+
+        /* ─── LIGNE POINTILLEE PLEINE LARGEUR ──────── */
+        .ligne-pointillee {
+            border-top: 1.5px dashed #000000;
+            margin: 0.25cm 0;
+            font-size: 0;
+            line-height: 0;
+            height: 0;
+        }
+
+        /* ─── TITRE BC (CENTRE) ────────────────────── */
+        .pdf-titre {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            letter-spacing: 0.5pt;
+            margin: 0.3cm 0;
+        }
+
+        /* ─── INFOS LIGNE PAR LIGNE (style recu) ───── */
+        .pdf-infos {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.2cm 0;
+        }
+
+        .pdf-infos tr {
+            border-bottom: 1px dashed #999999;
+        }
+
+        .pdf-infos td {
+            padding: 0.15cm 0.1cm;
+            font-size: 10pt;
+            vertical-align: top;
+        }
+
+        .pdf-infos .label {
+            color: #333333;
+            width: 18%;
+            font-weight: normal;
+        }
+
+        .pdf-infos .valeur {
+            font-weight: bold;
+            width: 32%;
+        }
+
+        /* ─── SECTION CENTRALE (---- TITRE ----) ───── */
+        .pdf-section-titre {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0.5cm 0 0.2cm 0;
+            letter-spacing: 0.5pt;
+        }
+
+        /* ─── TABLEAU DES LIGNES ───────────────────── */
+        .pdf-tableau {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.2cm 0 0.4cm 0;
+        }
+
+        .pdf-tableau thead tr {
+            border-top: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+        }
+
+        .pdf-tableau th {
+            padding: 0.2cm 0.3cm;
+            text-align: left;
+            font-size: 9.5pt;
+            font-weight: bold;
+        }
+
+        .pdf-tableau th.text-right {
+            text-align: right;
+        }
+
+        .pdf-tableau td {
+            padding: 0.2cm 0.3cm;
+            font-size: 10pt;
+            border-bottom: 1px solid #DDDDDD;
+        }
+
+        .pdf-tableau td.text-right {
+            text-align: right;
+        }
+
+        .pdf-tableau tbody tr:last-child td {
+            border-bottom: 1px solid #000000;
+        }
+
+        /* ─── RECAPITULATIF (ALIGNE A DROITE) ──────── */
+        .pdf-recap {
+            margin-top: 0.3cm;
+            margin-left: 50%;
+            width: 50%;
+            border-collapse: collapse;
+        }
+
+        .pdf-recap td {
+            padding: 0.15cm 0.3cm;
+            font-size: 10.5pt;
+        }
+
+        .pdf-recap td.label {
+            color: #333333;
+        }
+
+        .pdf-recap td.valeur {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .pdf-recap-final td {
+            border-top: 2px solid #000000;
+            border-bottom: 2px double #000000;
+            font-size: 12pt;
+            padding: 0.3cm 0.3cm;
+            font-weight: bold;
+        }
+
+        /* ─── VALIDATEUR (style "Caisse : ...") ────── */
+        .pdf-validateur {
+            text-align: right;
+            margin-top: 0.4cm;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        /* ─── SIGNATURES ───────────────────────────── */
+        .pdf-signatures {
+            margin-top: 1.2cm;
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+
+        .pdf-signature {
+            width: 50%;
+            padding: 0 0.5cm;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .pdf-signature-zone {
+            border-bottom: 1px solid #000000;
+            height: 1.8cm;
+            margin-bottom: 0.15cm;
+        }
+
+        .pdf-signature-label {
+            font-size: 9pt;
+            color: #333333;
+            font-weight: bold;
+        }
+
+        /* ─── PIED DE PAGE ─────────────────────────── */
+        .pdf-footer {
+            margin-top: 1.2cm;
+            padding-top: 0.3cm;
+            border-top: 1px solid #000000;
+            text-align: center;
+            font-size: 9pt;
+            color: #555555;
+        }
+
+        .pdf-footer strong {
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+
+    {# ─── ENTETE : LOGO A GAUCHE + DATES A DROITE ─── #}
+    <table class="pdf-entete">
+        <tr>
+            <td class="pdf-logo-cell">
+                <img src="{{ static('images/logo_ucao.png') }}" alt="UCAO" class="pdf-logo">
+            </td>
+            <td class="pdf-dates-cell">
+                <p>Imprime le : <strong>{{ bc.date_creation|date_fr }}</strong></p>
+                {% if bc.date_validation %}
+                    <p>Date Operation : <strong>{{ bc.date_validation|date_fr }}</strong></p>
+                {% else %}
+                    <p>Date Operation : <strong>{{ bc.date_creation|date_fr }}</strong></p>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {# ─── SOUS-TITRE (style "MASTER EN INFORMATIQUE DE GESTION") #}
+    <div class="pdf-sous-institution">UCAO-ISG-CSM &mdash; APPROVISIONNEMENTS</div>
+
+    {# ─── LIGNE POINTILLEE ─────────────────────── #}
+    <div class="ligne-pointillee"></div>
+
+    {# ─── TITRE BC ─────────────────────────────── #}
+    <div class="pdf-titre">BON DE COMMANDE</div>
+
+    <div class="ligne-pointillee"></div>
+
+    {# ─── INFOS EN 2 COLONNES (style "Etudiant : ... | Classe : ...") #}
+    <table class="pdf-infos">
+        <tr>
+            <td class="label">N° BC :</td>
+            <td class="valeur">{{ bc.numero }}</td>
+            <td class="label">Statut :</td>
+            <td class="valeur">{{ bc.get_statut_display() }}</td>
+        </tr>
+        <tr>
+            <td class="label">FEB liee :</td>
+            <td class="valeur">{{ bc.fiche.numero }}</td>
+            <td class="label">Code fournisseur :</td>
+            <td class="valeur">{{ bc.fournisseur.code }}</td>
+        </tr>
+        <tr>
+            <td class="label">Fournisseur :</td>
+            <td class="valeur" colspan="3">{{ bc.fournisseur.nom }}</td>
+        </tr>
+        {% if bc.fournisseur.email or bc.fournisseur.telephone %}
+            <tr>
+                <td class="label">Email :</td>
+                <td class="valeur">{{ bc.fournisseur.email or '—' }}</td>
+                <td class="label">Telephone :</td>
+                <td class="valeur">{{ bc.fournisseur.telephone or '—' }}</td>
+            </tr>
+        {% endif %}
+        {% if bc.fournisseur.adresse %}
+            <tr>
+                <td class="label">Adresse :</td>
+                <td class="valeur" colspan="3">{{ bc.fournisseur.adresse }}</td>
+            </tr>
+        {% endif %}
+    </table>
+
+    {# ─── SECTION ARTICLES & SERVICES (style "---- FRAIS PAYES ----") #}
+    <div class="pdf-section-titre">---- ARTICLES &amp; SERVICES ----</div>
+
+    <table class="pdf-tableau">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Designation</th>
+                <th class="text-right">Qte</th>
+                <th class="text-right">Prix unitaire</th>
+                <th class="text-right">Montant HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in lignes %}
+                <tr>
+                    <td>{{ ligne.get_type_ligne_display() }}</td>
+                    <td>{{ ligne.designation }}</td>
+                    <td class="text-right">{{ ligne.quantite }}</td>
+                    <td class="text-right">{{ ligne.prix_unitaire|fcfa }}</td>
+                    <td class="text-right">{{ ligne.montant_ligne|fcfa }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# ─── RECAPITULATIF ────────────────────────── #}
+    <table class="pdf-recap">
+        <tr>
+            <td class="label">Montant HT :</td>
+            <td class="valeur">{{ bc.montant_ht|fcfa }} F CFA</td>
+        </tr>
+        <tr>
+            <td class="label">TVA ({{ bc.taux_tva }} %) :</td>
+            <td class="valeur">{{ bc.montant_tva|fcfa }} F CFA</td>
+        </tr>
+        <tr class="pdf-recap-final">
+            <td class="label">MONTANT TTC :</td>
+            <td class="valeur">{{ bc.montant_ttc|fcfa }} F CFA</td>
+        </tr>
+    </table>
+
+    {# ─── VALIDATEUR (style "Caisse : moussa.diouf") #}
+    {% if bc.validateur %}
+        <div class="pdf-validateur">
+            Valide par : {{ bc.validateur.nom_complet }}
+            {% if bc.signe_en_po %} (en Pour Ordre){% endif %}
+        </div>
+    {% endif %}
+
+    {# ─── SIGNATURES ───────────────────────────── #}
+    <table class="pdf-signatures">
+        <tr>
+            <td class="pdf-signature">
+                <div class="pdf-signature-zone"></div>
+                <div class="pdf-signature-label">
+                    Signature {% if bc.signe_en_po %}DFC (en PO){% else %}DG{% endif %}
+                </div>
+            </td>
+            <td class="pdf-signature">
+                <div class="pdf-signature-zone"></div>
+                <div class="pdf-signature-label">Tampon UCAO-ISG-CSM</div>
+            </td>
+        </tr>
+    </table>
+
+    {# ─── PIED DE PAGE (style "KAIROS Suite - Copyright © SenSoft") #}
+    <div class="pdf-footer">
+        <strong>UCAO Approvisionnements</strong> - Copyright &copy; UCAO-ISG-CSM &mdash; www.ucao-isg-csm.sn
+    </div>
+
+</body>
+</html>

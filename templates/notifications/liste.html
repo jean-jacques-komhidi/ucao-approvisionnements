@@ -1,0 +1,80 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Notifications - UCAO{% endblock %}
+{% block page_titre %}Notifications{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>Mes notifications</h2>
+            <p class="bandeau-sous-titre">
+                {{ total }} au total
+                {% if non_lues > 0 %} · <strong>{{ non_lues }} non lue(s)</strong>{% endif %}
+            </p>
+        </div>
+        {% if non_lues > 0 %}
+            <form method="post" action="{{ url('notifications_toutes_lues') }}">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-secondaire">
+                    <i data-lucide="check-check" class="btn-icone"></i>
+                    Tout marquer comme lu
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="carte">
+        {% if notifications %}
+            <div class="liste-notifications">
+                {% for notif in notifications %}
+                    <div class="notification-item {% if not notif.est_lue %}notification-non-lue{% endif %}">
+                        <div class="notification-icone-wrapper notification-{{ notif.couleur_badge }}">
+                            <i data-lucide="{{ notif.icone }}" class="notification-icone"></i>
+                        </div>
+
+                        <div class="notification-corps">
+                            <div class="notification-entete">
+                                <h4 class="notification-sujet">{{ notif.sujet }}</h4>
+                                <span class="notification-date">{{ notif.date_creation|date_fr }}</span>
+                            </div>
+                            <p class="notification-message">{{ notif.message }}</p>
+
+                            <div class="notification-meta">
+                                <span class="badge badge-{{ notif.couleur_badge }} badge-petit">
+                                    {{ notif.get_type_notif_display() }}
+                                </span>
+                                {% if notif.email_envoye %}
+                                    <span class="notification-email-pj">
+                                        <i data-lucide="mail" class="meta-icone"></i> Email envoye
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="notification-actions">
+                            {% if notif.url_action %}
+                                <form method="post" action="{{ url('notification_marquer_lue', kwargs={'pk': notif.pk}) }}">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                    <button type="submit" class="btn btn-secondaire btn-petit">
+                                        <i data-lucide="external-link" class="btn-icone"></i>
+                                        Voir
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="bell-off" class="etat-vide-icone"></i>
+                <h3>Aucune notification</h3>
+                <p>Vous serez notifie a chaque event important du systeme.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

@@ -2118,3 +2118,191 @@ svg.lucide {
     font-style: italic;
     white-space: nowrap;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   NOTIFICATIONS — CLOCHE + LISTE
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Badge rouge sur la cloche (compteur sidebar) ─────────── */
+.nav-badge-rouge {
+    background-color: #DC2626;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+    margin-left: auto;
+    box-shadow: 0 0 0 2px var(--fond-sidebar);
+}
+
+/* Animation pulse pour attirer l'oeil */
+@keyframes pulse-rouge {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(220, 38, 38, 0);
+    }
+}
+
+.nav-badge-rouge {
+    animation: pulse-rouge 2s infinite;
+}
+
+/* ─── Liste des notifications (page /notifications/) ────────── */
+.liste-notifications {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--bordure-claire);
+    transition: background-color 0.15s;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: var(--fond-hover);
+}
+
+.notification-non-lue {
+    background-color: rgba(37, 99, 235, 0.04);
+    border-left: 3px solid #2563EB;
+}
+
+.notification-non-lue:hover {
+    background-color: rgba(37, 99, 235, 0.08);
+}
+
+[data-theme="dark"] .notification-non-lue {
+    background-color: rgba(96, 165, 250, 0.08);
+    border-left-color: #60A5FA;
+}
+
+/* ─── Icone de la notification ──────────────────────────────── */
+.notification-icone-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--rayon-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icone {
+    width: 20px;
+    height: 20px;
+}
+
+.notification-info {
+    background-color: #DBEAFE;
+    color: #2563EB;
+}
+
+.notification-success {
+    background-color: #D1FAE5;
+    color: #059669;
+}
+
+.notification-warning {
+    background-color: #FEF3C7;
+    color: #D97706;
+}
+
+.notification-error {
+    background-color: #FEE2E2;
+    color: #DC2626;
+}
+
+[data-theme="dark"] .notification-info {
+    background-color: rgba(37, 99, 235, 0.15);
+    color: #60A5FA;
+}
+[data-theme="dark"] .notification-success {
+    background-color: rgba(5, 150, 105, 0.15);
+    color: #34D399;
+}
+[data-theme="dark"] .notification-warning {
+    background-color: rgba(217, 119, 6, 0.15);
+    color: #FBBF24;
+}
+[data-theme="dark"] .notification-error {
+    background-color: rgba(220, 38, 38, 0.15);
+    color: #F87171;
+}
+
+/* ─── Corps de la notification ──────────────────────────────── */
+.notification-corps {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-entete {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.notification-sujet {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--texte-principal);
+    margin: 0;
+}
+
+.notification-date {
+    font-size: 0.75rem;
+    color: var(--texte-secondaire);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.notification-message {
+    font-size: 0.85rem;
+    color: var(--texte-secondaire);
+    line-height: 1.5;
+    margin: 0 0 0.6rem 0;
+}
+
+.notification-meta {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.notification-email-pj {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--texte-tertiaire);
+}
+
+.notification-email-pj .meta-icone {
+    width: 12px;
+    height: 12px;
+}
+
+.notification-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* ─── Badge petit ──────────────────────────────────────────── */
+.badge-petit {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+}

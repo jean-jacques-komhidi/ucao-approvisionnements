@@ -1,9 +1,10 @@
 """
 Formulaires de l'app approvisionnements.
 
-- FormulaireFEB         : entete de FEB (objet, fournisseur, taux TVA)
-- FormulaireLigneFiche  : ligne individuelle (Article ou Service + qte + prix)
-- FormSetLignes         : formset dynamique (lignes ajoutees/supprimees en JS)
+- FormulaireFEB         : entete de FEB
+- FormulaireLigneFiche  : ligne individuelle
+- FormSetLignes         : formset dynamique
+- FormulaireValidationBC : validation BC (avec option signature en PO)
 """
 from django import forms
 from django.forms import inlineformset_factory
@@ -43,10 +44,8 @@ class FormulaireFEB(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Limite aux fournisseurs actifs
         self.fields["fournisseur"].queryset = Fournisseur.objects.actifs()
 
-        # Choix TVA Senegal uniquement
         self.fields["taux_tva"] = forms.ChoiceField(
             choices=[("0", "0%"), ("10", "10%"), ("18", "18%")],
             widget=forms.Select(attrs={"class": "champ-formulaire"}),
@@ -56,7 +55,7 @@ class FormulaireFEB(forms.ModelForm):
 
 
 # ═══════════════════════════════════════════════════════════════════
-# FORMULAIRE LIGNE FEB (utilise dans le formset)
+# FORMULAIRE LIGNE FEB
 # ═══════════════════════════════════════════════════════════════════
 class FormulaireLigneFiche(forms.ModelForm):
     """Formulaire d'une ligne de FEB."""
@@ -104,7 +103,6 @@ class FormulaireLigneFiche(forms.ModelForm):
         self.fields["designation_libre"].required = False
 
     def clean(self):
-        """Verifie qu'au moins une designation est fournie."""
         cleaned = super().clean()
 
         if self.cleaned_data.get("DELETE"):
@@ -120,13 +118,13 @@ class FormulaireLigneFiche(forms.ModelForm):
                 raise forms.ValidationError(
                     "Selectionner un article ou saisir une designation libre."
                 )
-            cleaned["service"] = None  # Force a None
+            cleaned["service"] = None
         elif type_ligne == TypeLigne.SERVICE:
             if not service and not designation_libre:
                 raise forms.ValidationError(
                     "Selectionner un service ou saisir une designation libre."
                 )
-            cleaned["article"] = None  # Force a None
+            cleaned["article"] = None
 
         return cleaned
 
@@ -138,8 +136,22 @@ FormSetLignes = inlineformset_factory(
     FicheExpression,
     LigneFiche,
     form=FormulaireLigneFiche,
-    extra=1,           # 1 ligne vide initiale
+    extra=1,
     can_delete=True,
-    min_num=1,         # Au moins 1 ligne obligatoire
+    min_num=1,
     validate_min=True,
 )
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FORMULAIRE VALIDATION BC (DG ou DFC en PO)
+# ═══════════════════════════════════════════════════════════════════
+class FormulaireValidationBC(forms.Form):
+    """Formulaire de validation d'un BC."""
+
+    signe_en_po = forms.BooleanField(
+        required=False,
+        label="Je signe en Pour Ordre (DG absent)",
+        help_text="A cocher si vous etes DFC et que le DG est absent.",
+        widget=forms.CheckboxInput(attrs={"class": "champ-checkbox"}),
+    )

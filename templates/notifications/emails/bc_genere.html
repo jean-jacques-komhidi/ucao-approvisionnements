@@ -1,0 +1,53 @@
+{% extends "notifications/emails/base_email.html" %}
+
+{% block bandeau %}
+<tr>
+    <td style="background-color: #FEF3C7; padding: 15px 40px; border-bottom: 3px solid #F59E0B;">
+        <p style="color: #92400E; margin: 0; font-size: 14px; font-weight: 600;">
+            📋 Nouveau Bon de Commande
+        </p>
+    </td>
+</tr>
+{% endblock %}
+
+{% block contenu %}
+<h2 style="color: #1A1A1A; font-size: 22px; margin: 0 0 20px 0;">
+    BC genere - Validation requise
+</h2>
+
+<p style="color: #444444; font-size: 15px; line-height: 1.6;">
+    Un nouveau Bon de Commande a ete genere automatiquement et necessite
+    votre validation.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F8F9FA; border-radius: 8px; padding: 20px; margin: 25px 0;">
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">Numero BC :</td>
+        <td style="padding: 5px 0; font-weight: 600; color: #1A1A1A;">{{ bc.numero }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">FEB liee :</td>
+        <td style="padding: 5px 0; color: #1A1A1A;">{{ bc.fiche.numero }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">Fournisseur :</td>
+        <td style="padding: 5px 0; color: #1A1A1A;">{{ bc.fournisseur.nom }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">Montant TTC :</td>
+        <td style="padding: 5px 0; font-weight: 700; color: #1A1A1A; font-size: 16px;">
+            {{ bc.montant_ttc|fcfa }} F CFA
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin: 25px 0;">
+    <tr>
+        <td>
+            <a href="{{ url_bc }}" style="background-color: #1A1A1A; color: #FFFFFF; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block;">
+                Voir et valider →
+            </a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
