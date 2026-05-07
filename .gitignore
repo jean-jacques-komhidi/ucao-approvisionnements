@@ -1,35 +1,73 @@
-# Python
-__pycache__/
-*.py[cod]
-*.so
-*.egg-info/
+# ═══════════════════════════════════════════════════════════════
+# .gitignore - UCAO Approvisionnements
+# ═══════════════════════════════════════════════════════════════
 
-# Environnement virtuel
-venv/
-
-# Variables d'environnement
+# ─── Variables d'environnement (SECRETS !) ──────────────────
 .env
 .env.local
+.env.production
+*.env
 
-# Django
-*.log
-db.sqlite3
-/staticfiles/
-/media/
-local_settings.py
-
-# Tests
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
 
-# IDEs
+# ─── Environnement virtuel ──────────────────────────────────
+venv/
+env/
+ENV/
+.venv/
+
+# ─── Django ──────────────────────────────────────────────────
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+collected_static/
+
+# Migrations : on les garde (important pour reproduire la BD)
+# Si tu veux les ignorer, decommente :
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# ─── IDE / Editeurs ─────────────────────────────────────────
 .vscode/
 .idea/
-
-# OS
-Thumbs.db
+*.swp
+*.swo
+*~
 .DS_Store
 
-# Logs
-logs/*.log
+# ─── OS ──────────────────────────────────────────────────────
+Thumbs.db
+desktop.ini
+
+# ─── Logs ────────────────────────────────────────────────────
+logs/
+*.log
+
+# ─── Secrets et credentials ──────────────────────────────────
+*.pem
+*.key
+*.cert
+secrets/
+
+# ─── Build & dist ────────────────────────────────────────────
+build/
+dist/
+*.tar.gz
+
+# ─── Node / npm (au cas ou) ─────────────────────────────────
+node_modules/
+package-lock.json
