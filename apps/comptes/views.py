@@ -100,22 +100,24 @@ def vue_deconnexion(request):
 # TABLEAU DE BORD
 # ═══════════════════════════════════════════════════════════════════
 @login_required
-@never_cache
 def vue_tableau_de_bord(request):
-    """
-    Affiche le tableau de bord adapte au role.
-
-    Sera enrichi au fur et a mesure que les autres apps sont developpees.
-    """
-    utilisateur = request.user
+    """Tableau de bord principal - cockpit adaptatif par role."""
+    from .dashboard import (
+        construire_activites_recentes,
+        construire_alertes,
+        construire_graphiques,
+        construire_kpi,
+    )
 
     contexte = {
-        "utilisateur": utilisateur,
-        "role_libelle": utilisateur.get_role_display(),
-        "est_demandeur": utilisateur.est_demandeur,
-        "peut_valider_feb": utilisateur.peut_valider_feb,
-        "peut_valider_bc": utilisateur.peut_valider_bc,
-        "est_admin": utilisateur.est_admin,
+        "kpi": construire_kpi(request.user),
+        "graphiques": construire_graphiques(request.user),
+        "activites": construire_activites_recentes(request.user, limit=6),
+        "alertes": construire_alertes(request.user),
     }
 
-    return render(request, "comptes/tableau_bord.html", contexte)
+    # Essaye plusieurs chemins de template
+    try:
+        return render(request, "comptes/tableau_bord.html", contexte)
+    except Exception:
+        return render(request, "comptes/tableau_de_bord.html", contexte)

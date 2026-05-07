@@ -1,0 +1,90 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ paiement.numero }} - UCAO{% endblock %}
+{% block page_titre %}{{ paiement.numero }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('paiements_historique') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour a l'historique
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section feb-entete-detail">
+            <div>
+                <h3>{{ paiement.numero }}</h3>
+                <p>Paiement pour {{ paiement.bc.numero }}</p>
+            </div>
+            <span class="badge badge-{{ paiement.couleur_statut }} badge-grand">
+                {{ paiement.get_statut_display() }}
+            </span>
+        </div>
+
+        <div class="formulaire feb-detail-grille">
+            <div class="detail-bloc">
+                <p class="detail-label">BC paye</p>
+                <p class="detail-valeur">
+                    <a href="{{ url('bc_detail', kwargs={'pk': paiement.bc.pk}) }}">{{ paiement.bc.numero }}</a>
+                </p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Ordre de paiement</p>
+                <p class="detail-valeur">
+                    <a href="{{ url('ordre_paiement_detail', kwargs={'pk': paiement.ordre.pk}) }}">{{ paiement.ordre.numero }}</a>
+                </p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Fournisseur</p>
+                <p class="detail-valeur">{{ paiement.bc.fournisseur.nom }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Montant verse</p>
+                <p class="detail-valeur"><strong>{{ paiement.montant_verse|fcfa }} F CFA</strong></p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Nature</p>
+                <p class="detail-valeur">{{ paiement.get_nature_display() }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Mode</p>
+                <p class="detail-valeur">{{ paiement.get_mode_display() }}</p>
+            </div>
+            {% if paiement.reference %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Reference</p>
+                    <p class="detail-valeur">{{ paiement.reference }}</p>
+                </div>
+            {% endif %}
+            <div class="detail-bloc">
+                <p class="detail-label">Comptable</p>
+                <p class="detail-valeur">{{ paiement.comptable.nom_complet }}</p>
+            </div>
+            {% if paiement.date_execution %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Date d'execution</p>
+                    <p class="detail-valeur">{{ paiement.date_execution|date_fr }}</p>
+                </div>
+            {% endif %}
+            {% if paiement.solde_restant > 0 %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Solde restant a payer</p>
+                    <p class="detail-valeur" style="color: #DC2626;"><strong>{{ paiement.solde_restant|fcfa }} F CFA</strong></p>
+                </div>
+            {% else %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Statut financier</p>
+                    <p class="detail-valeur" style="color: #059669;"><strong>BC entierement paye ✓</strong></p>
+                </div>
+            {% endif %}
+            {% if paiement.motif_rejet %}
+                <div class="detail-bloc detail-bloc-large">
+                    <p class="detail-label">Motif rejet</p>
+                    <p class="detail-valeur" style="color: #DC2626;">{{ paiement.motif_rejet }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

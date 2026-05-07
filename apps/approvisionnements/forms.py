@@ -155,3 +155,73 @@ class FormulaireValidationBC(forms.Form):
         help_text="A cocher si vous etes DFC et que le DG est absent.",
         widget=forms.CheckboxInput(attrs={"class": "champ-checkbox"}),
     )
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FORMULAIRES PAIEMENTS
+# ═══════════════════════════════════════════════════════════════════
+class FormulaireOrdrePaiement(forms.ModelForm):
+    """DFC cree un ordre de paiement pour un BC valide."""
+
+    class Meta:
+        from .models import ModePaiement, NaturePaiement, OrdrePaiement
+
+        model = OrdrePaiement
+        fields = ["montant", "nature", "mode", "motif"]
+        widgets = {
+            "montant": forms.NumberInput(attrs={
+                "class": "champ-formulaire",
+                "step": "0.01",
+                "min": "1",
+                "placeholder": "Ex : 295000.00",
+            }),
+            "nature": forms.Select(attrs={"class": "champ-formulaire"}),
+            "mode": forms.Select(attrs={"class": "champ-formulaire"}),
+            "motif": forms.Textarea(attrs={
+                "class": "champ-formulaire",
+                "rows": 3,
+                "placeholder": "Motif de l'ordre (optionnel)",
+            }),
+        }
+
+
+class FormulaireVisaDG(forms.Form):
+    """DG vise un ordre de paiement (ou rejette)."""
+
+    accepter = forms.BooleanField(
+        required=False,
+        label="Accorder le visa",
+    )
+    motif_rejet = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            "class": "champ-formulaire",
+            "rows": 3,
+            "placeholder": "Si rejet, indiquer le motif obligatoire",
+        }),
+        label="Motif de rejet (si refus)",
+    )
+
+
+class FormulaireExecutionPaiement(forms.ModelForm):
+    """Comptable execute un paiement."""
+
+    class Meta:
+        from .models import ModePaiement, NaturePaiement, Paiement
+
+        model = Paiement
+        fields = ["montant_verse", "nature", "mode", "reference"]
+        widgets = {
+            "montant_verse": forms.NumberInput(attrs={
+                "class": "champ-formulaire",
+                "step": "0.01",
+                "min": "1",
+                "placeholder": "Montant a verser",
+            }),
+            "nature": forms.Select(attrs={"class": "champ-formulaire"}),
+            "mode": forms.Select(attrs={"class": "champ-formulaire"}),
+            "reference": forms.TextInput(attrs={
+                "class": "champ-formulaire",
+                "placeholder": "Ex : Cheque 123456 / Virement REF-2026-...",
+            }),
+        }

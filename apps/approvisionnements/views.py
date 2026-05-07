@@ -19,7 +19,11 @@ from apps.comptes.models import RoleUtilisateur
 from apps.referentiels.models import Article, ServiceExterieur
 
 from .forms import FormSetLignes, FormulaireFEB, FormulaireValidationBC
-from .models import BonCommande, FicheExpression, StatutBC, StatutFEB
+from .models import (
+    BonCommande, FicheExpression, OrdrePaiement, Paiement,
+    StatutBC, StatutFEB, StatutOrdrePaiement, StatutPaiement,
+)
+from .services import calculer_solde_restant
 from .services import generer_bc_depuis_feb
 
 logger = logging.getLogger(__name__)
@@ -593,3 +597,404 @@ def _pdf_link_callback(uri, rel):
         return uri
 
     return uri
+
+# ═══════════════════════════════════════════════════════════════════
+# PAIEMENTS — UTILITAIRES
+# ═══════════════════════════════════════════════════════════════════
+def _peut_creer_ordre_paiement(user):
+    """DFC ou Admin peut creer un ordre de paiement."""
+    return user.role in (RoleUtilisateur.DFC, RoleUtilisateur.ADMIN)
+
+
+def _peut_viser_ordre(user):
+    """DG ou Admin peut viser un ordre de paiement."""
+    return user.role in (RoleUtilisateur.DG, RoleUtilisateur.ADMIN)
+
+
+def _peut_executer_paiement(user):
+    """Comptable ou Admin peut executer un paiement."""
+    return user.role in (RoleUtilisateur.COMPTABLE, RoleUtilisateur.ADMIN)
+
+
+def _peut_voir_paiements(user):
+    """Qui peut voir la liste des paiements."""
+    return user.role in (
+        RoleUtilisateur.DFC,
+        RoleUtilisateur.DG,
+        RoleUtilisateur.COMPTABLE,
+        RoleUtilisateur.ADMIN,
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════
+# PAIEMENTS — LISTE BC A PAYER (vue Comptable / DFC)
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+def paiements_bc_a_payer(request):
+    """Liste des BC valides qui attendent un paiement."""
+    if not _peut_voir_paiements(request.user):
+        messages.error(request, "Acces refuse.")
+        return redirect("tableau_de_bord")
+
+    bc_a_payer = BonCommande.objects.a_payer().select_related(
+        "fiche", "fournisseur"
+    )
+
+    # KPI
+    total_a_payer = bc_a_payer.count()
+    montant_a_payer = sum(
+        (calculer_solde_restant(bc) for bc in bc_a_payer),
+        Decimal("0.00"),
+    )
+
+    # Ordres en attente
+    ordres_en_attente = OrdrePaiement.objects.filter(
+        statut=StatutOrdrePaiement.EN_ATTENTE_VISA
+    ).count()
+
+    # Total paiements executes (mois en cours)
+    from datetime import datetime
+    debut_mois = datetime.now().replace(day=1, hour=0, minute=0, second=0)
+    paye_ce_mois = (
+        Paiement.objects
+        .filter(statut=StatutPaiement.PAYE, date_execution__gte=debut_mois)
+        .aggregate(total=Sum("montant_verse"))["total"]
+        or Decimal("0.00")
+    )
+
+    kpi = {
+        "total_a_payer": total_a_payer,
+        "montant_a_payer": montant_a_payer,
+        "ordres_en_attente": ordres_en_attente,
+        "paye_ce_mois": paye_ce_mois,
+    }
+
+    return render(request, "approvisionnements/paiements_bc_a_payer.html", {
+        "bc_list": bc_a_payer,
+        "kpi": kpi,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════════
+# PAIEMENTS — CREATION ORDRE (DFC)
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+@require_http_methods(["GET", "POST"])
+def ordre_paiement_creer(request, bc_pk):
+    """DFC cree un ordre de paiement pour un BC valide."""
+    if not _peut_creer_ordre_paiement(request.user):
+        messages.error(request, "Reserve au DFC.")
+        return redirect("paiements_bc_a_payer")
+
+    bc = get_object_or_404(BonCommande, pk=bc_pk)
+
+    if bc.statut != StatutBC.VALIDE:
+        messages.error(request, f"Le BC {bc.numero} n'est pas valide.")
+        return redirect("bc_detail", pk=bc_pk)
+
+    solde_restant = calculer_solde_restant(bc)
+    if solde_restant <= 0:
+        messages.warning(request, f"Le BC {bc.numero} est deja entierement paye.")
+        return redirect("bc_detail", pk=bc_pk)
+
+    from .forms import FormulaireOrdrePaiement
+
+    if request.method == "POST":
+        formulaire = FormulaireOrdrePaiement(request.POST)
+        if formulaire.is_valid():
+            montant = formulaire.cleaned_data["montant"]
+            if montant > solde_restant:
+                messages.error(
+                    request,
+                    f"Le montant ({montant} F) depasse le solde restant ({solde_restant} F).",
+                )
+            else:
+                ordre = formulaire.save(commit=False)
+                ordre.bc = bc
+                ordre.dfc = request.user
+                ordre.save()
+
+                logger.info(
+                    "Ordre de paiement %s cree par %s pour BC %s (montant: %s)",
+                    ordre.numero, request.user.identifiant, bc.numero, montant,
+                )
+                messages.success(
+                    request,
+                    f"Ordre de paiement {ordre.numero} cree. En attente du visa DG.",
+                )
+                return redirect("ordre_paiement_detail", pk=ordre.pk)
+    else:
+        formulaire = FormulaireOrdrePaiement(initial={
+            "montant": solde_restant,
+        })
+
+    return render(request, "approvisionnements/ordre_paiement_creer.html", {
+        "bc": bc,
+        "solde_restant": solde_restant,
+        "formulaire": formulaire,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════════
+# ORDRE DE PAIEMENT — LISTE
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+def ordres_paiement_liste(request):
+    """Liste des ordres de paiement (filtres par statut)."""
+    if not _peut_voir_paiements(request.user):
+        messages.error(request, "Acces refuse.")
+        return redirect("tableau_de_bord")
+
+    queryset = OrdrePaiement.objects.select_related(
+        "bc", "bc__fournisseur", "dfc", "dg"
+    ).order_by("-date_creation")
+
+    # Filtre par statut
+    statut_filtre = request.GET.get("statut", "").strip()
+    if statut_filtre:
+        queryset = queryset.filter(statut=statut_filtre)
+
+    # KPI
+    en_attente = OrdrePaiement.objects.filter(
+        statut=StatutOrdrePaiement.EN_ATTENTE_VISA
+    ).count()
+    vises = OrdrePaiement.objects.filter(statut=StatutOrdrePaiement.VISA_OK).count()
+    rejetes = OrdrePaiement.objects.filter(statut=StatutOrdrePaiement.REJETE_DG).count()
+
+    kpi = {
+        "en_attente": en_attente,
+        "vises": vises,
+        "rejetes": rejetes,
+        "total": queryset.count(),
+    }
+
+    paginator = Paginator(queryset, 20)
+    page = paginator.get_page(request.GET.get("page", 1))
+
+    return render(request, "approvisionnements/ordres_paiement_liste.html", {
+        "ordres": page,
+        "statut_filtre": statut_filtre,
+        "statuts": StatutOrdrePaiement.choices,
+        "kpi": kpi,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════════
+# ORDRE DE PAIEMENT — DETAIL + VISA DG
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+def ordre_paiement_detail(request, pk):
+    """Detail d'un ordre de paiement."""
+    if not _peut_voir_paiements(request.user):
+        messages.error(request, "Acces refuse.")
+        return redirect("tableau_de_bord")
+
+    ordre = get_object_or_404(
+        OrdrePaiement.objects.select_related("bc", "bc__fournisseur", "dfc", "dg"),
+        pk=pk,
+    )
+
+    return render(request, "approvisionnements/ordre_paiement_detail.html", {
+        "ordre": ordre,
+        "peut_viser": _peut_viser_ordre(request.user) and ordre.peut_etre_vise,
+        "peut_executer": (
+            _peut_executer_paiement(request.user)
+            and ordre.statut == StatutOrdrePaiement.VISA_OK
+        ),
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def ordre_paiement_viser(request, pk):
+    """DG accepte ou rejette un ordre de paiement."""
+    if not _peut_viser_ordre(request.user):
+        messages.error(request, "Reserve au DG.")
+        return redirect("ordres_paiement_liste")
+
+    ordre = get_object_or_404(OrdrePaiement, pk=pk)
+
+    if not ordre.peut_etre_vise:
+        messages.error(request, "Cet ordre ne peut pas etre vise dans son etat actuel.")
+        return redirect("ordre_paiement_detail", pk=pk)
+
+    action = request.POST.get("action", "")
+    motif_rejet = request.POST.get("motif_rejet", "").strip()
+
+    with transaction.atomic():
+        if action == "accepter":
+            ordre.statut = StatutOrdrePaiement.VISA_OK
+            ordre.dg = request.user
+            ordre.date_visa = timezone.now()
+            ordre.save()
+            logger.info(
+                "Ordre %s vise par %s",
+                ordre.numero, request.user.identifiant,
+            )
+            messages.success(request, f"Visa accorde a l'ordre {ordre.numero}.")
+
+        elif action == "rejeter":
+            if not motif_rejet:
+                messages.error(request, "Le motif de rejet est obligatoire.")
+                return redirect("ordre_paiement_detail", pk=pk)
+
+            ordre.statut = StatutOrdrePaiement.REJETE_DG
+            ordre.dg = request.user
+            ordre.date_visa = timezone.now()
+            ordre.motif = motif_rejet
+            ordre.save()
+            logger.warning(
+                "Ordre %s rejete par %s : %s",
+                ordre.numero, request.user.identifiant, motif_rejet,
+            )
+            messages.warning(request, f"Ordre {ordre.numero} rejete.")
+
+    return redirect("ordre_paiement_detail", pk=pk)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# PAIEMENT — EXECUTION (Comptable)
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+@require_http_methods(["GET", "POST"])
+def paiement_executer(request, ordre_pk):
+    """Comptable execute le paiement apres visa DG."""
+    if not _peut_executer_paiement(request.user):
+        messages.error(request, "Reserve au Comptable.")
+        return redirect("ordres_paiement_liste")
+
+    ordre = get_object_or_404(OrdrePaiement, pk=ordre_pk)
+
+    if ordre.statut != StatutOrdrePaiement.VISA_OK:
+        messages.error(request, "L'ordre n'a pas le visa DG.")
+        return redirect("ordre_paiement_detail", pk=ordre_pk)
+
+    bc = ordre.bc
+    solde_restant = calculer_solde_restant(bc)
+
+    if solde_restant <= 0:
+        messages.info(request, "Ce BC est deja entierement paye.")
+        return redirect("bc_detail", pk=bc.pk)
+
+    from .forms import FormulaireExecutionPaiement
+    from .services import executer_paiement
+
+    if request.method == "POST":
+        formulaire = FormulaireExecutionPaiement(request.POST)
+        if formulaire.is_valid():
+            paiement = formulaire.save(commit=False)
+            paiement.bc = bc
+            paiement.ordre = ordre
+            paiement.comptable = request.user
+            paiement.save()  # Pour avoir le numero auto
+
+            # Execute la verification + statut
+            paiement = executer_paiement(paiement)
+
+            if paiement.statut == StatutPaiement.REJETE:
+                messages.error(request, f"Paiement rejete : {paiement.motif_rejet}")
+            elif paiement.statut == StatutPaiement.PAYE:
+                messages.success(
+                    request,
+                    f"Paiement {paiement.numero} execute integralement. "
+                    f"BC {bc.numero} entierement paye.",
+                )
+            else:  # ACOMPTE
+                messages.success(
+                    request,
+                    f"Acompte {paiement.numero} verse. "
+                    f"Solde restant : {paiement.solde_restant} F CFA.",
+                )
+
+            return redirect("paiement_detail", pk=paiement.pk)
+    else:
+        formulaire = FormulaireExecutionPaiement(initial={
+            "montant_verse": solde_restant,
+            "mode": ordre.mode,
+            "nature": ordre.nature,
+        })
+
+    return render(request, "approvisionnements/paiement_executer.html", {
+        "ordre": ordre,
+        "bc": bc,
+        "solde_restant": solde_restant,
+        "formulaire": formulaire,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════════
+# PAIEMENT — DETAIL
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+def paiement_detail(request, pk):
+    """Detail d'un paiement execute."""
+    if not _peut_voir_paiements(request.user):
+        messages.error(request, "Acces refuse.")
+        return redirect("tableau_de_bord")
+
+    paiement = get_object_or_404(
+        Paiement.objects.select_related("bc", "ordre", "comptable", "bc__fournisseur"),
+        pk=pk,
+    )
+
+    return render(request, "approvisionnements/paiement_detail.html", {
+        "paiement": paiement,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════════
+# PAIEMENT — HISTORIQUE COMPLET
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+def paiements_historique(request):
+    """Historique de tous les paiements."""
+    if not _peut_voir_paiements(request.user):
+        messages.error(request, "Acces refuse.")
+        return redirect("tableau_de_bord")
+
+    queryset = Paiement.objects.select_related(
+        "bc", "bc__fournisseur", "comptable"
+    ).order_by("-date_creation")
+
+    # Filtres
+    statut_filtre = request.GET.get("statut", "").strip()
+    if statut_filtre:
+        queryset = queryset.filter(statut=statut_filtre)
+
+    recherche = request.GET.get("q", "").strip()
+    if recherche:
+        queryset = queryset.filter(
+            Q(numero__icontains=recherche) |
+            Q(bc__numero__icontains=recherche) |
+            Q(bc__fournisseur__nom__icontains=recherche) |
+            Q(reference__icontains=recherche)
+        )
+
+    # KPI
+    total_paye = (
+        Paiement.objects.filter(statut=StatutPaiement.PAYE)
+        .aggregate(total=Sum("montant_verse"))["total"] or Decimal("0.00")
+    )
+    total_acompte = (
+        Paiement.objects.filter(statut=StatutPaiement.ACOMPTE)
+        .aggregate(total=Sum("montant_verse"))["total"] or Decimal("0.00")
+    )
+    nb_rejetes = Paiement.objects.filter(statut=StatutPaiement.REJETE).count()
+
+    kpi = {
+        "total_paye": total_paye,
+        "total_acompte": total_acompte,
+        "nb_rejetes": nb_rejetes,
+        "total_count": queryset.count(),
+    }
+
+    paginator = Paginator(queryset, 20)
+    page = paginator.get_page(request.GET.get("page", 1))
+
+    return render(request, "approvisionnements/paiements_historique.html", {
+        "paiements": page,
+        "statut_filtre": statut_filtre,
+        "statuts": StatutPaiement.choices,
+        "recherche": recherche,
+        "kpi": kpi,
+    })

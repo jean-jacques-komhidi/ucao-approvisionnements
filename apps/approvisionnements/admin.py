@@ -2,6 +2,7 @@
 from django.contrib import admin
 
 from .models import BonCommande, FicheExpression, LigneFiche
+from .models import OrdrePaiement, Paiement
 
 
 class LigneFicheInline(admin.TabularInline):
@@ -76,3 +77,21 @@ class LigneFicheAdmin(admin.ModelAdmin):
     list_display = ("fiche", "type_ligne", "designation", "quantite", "prix_unitaire", "montant_ligne")
     list_filter = ("type_ligne",)
     search_fields = ("fiche__numero", "designation_libre")
+
+
+@admin.register(OrdrePaiement)
+class OrdrePaiementAdmin(admin.ModelAdmin):
+    list_display = ("numero", "bc", "montant", "nature", "mode", "statut", "dfc", "dg", "date_creation")
+    list_filter = ("statut", "nature", "mode")
+    search_fields = ("numero", "bc__numero", "bc__fournisseur__nom")
+    readonly_fields = ("numero", "date_creation", "date_modification", "date_visa")
+    ordering = ("-date_creation",)
+
+
+@admin.register(Paiement)
+class PaiementAdmin(admin.ModelAdmin):
+    list_display = ("numero", "bc", "montant_verse", "nature", "mode", "statut", "comptable", "date_execution")
+    list_filter = ("statut", "nature", "mode", "est_acompte")
+    search_fields = ("numero", "bc__numero", "reference")
+    readonly_fields = ("numero", "solde_restant", "date_creation", "date_modification", "date_execution")
+    ordering = ("-date_creation",)

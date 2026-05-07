@@ -1,0 +1,148 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Historique paiements - UCAO{% endblock %}
+{% block page_titre %}Historique des paiements{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="grille-kpi">
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-vert">
+                <i data-lucide="check-circle-2" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Total paye</p>
+                <p class="kpi-valeur">{{ kpi.total_paye|fcfa }}</p>
+                <p class="kpi-detail">F CFA integral</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-bleu">
+                <i data-lucide="circle-dollar-sign" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Total acomptes</p>
+                <p class="kpi-valeur">{{ kpi.total_acompte|fcfa }}</p>
+                <p class="kpi-detail">F CFA partiels</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-jaune">
+                <i data-lucide="alert-triangle" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Rejetes</p>
+                <p class="kpi-valeur">{{ kpi.nb_rejetes }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-violet">
+                <i data-lucide="files" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Total transactions</p>
+                <p class="kpi-valeur">{{ kpi.total_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>Historique des paiements</h2>
+            <p class="bandeau-sous-titre">{{ kpi.total_count }} transaction(s)</p>
+        </div>
+    </div>
+
+    <div class="carte">
+        <div class="filtres-zone">
+            <form method="get" class="formulaire-filtres">
+                <div class="champ-recherche-integre">
+                    <i data-lucide="search" class="recherche-icone"></i>
+                    <input type="text" name="q" value="{{ recherche }}"
+                           placeholder="N° paiement, BC, fournisseur, reference..." class="champ-formulaire">
+                    <button type="submit" class="btn-recherche-integre">
+                        <i data-lucide="arrow-right" class="btn-icone"></i>
+                    </button>
+                </div>
+                <select name="statut" class="champ-formulaire champ-select" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    {% for valeur, label in statuts %}
+                        <option value="{{ valeur }}" {% if statut_filtre == valeur %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if recherche or statut_filtre %}
+                    <a href="{{ url('paiements_historique') }}" class="btn btn-secondaire">
+                        <i data-lucide="x" class="btn-icone"></i> Reinitialiser
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if paiements %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th>N° Paiement</th>
+                            <th>BC</th>
+                            <th>Fournisseur</th>
+                            <th>Montant</th>
+                            <th>Mode</th>
+                            <th>Statut</th>
+                            <th class="col-date">Date</th>
+                            <th class="col-actions">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in paiements %}
+                            <tr>
+                                <td><strong>{{ p.numero }}</strong></td>
+                                <td><span class="badge badge-info">{{ p.bc.numero }}</span></td>
+                                <td>{{ p.bc.fournisseur.nom|truncate(20) }}</td>
+                                <td><strong>{{ p.montant_verse|fcfa }}</strong></td>
+                                <td>{{ p.get_mode_display() }}</td>
+                                <td><span class="badge badge-{{ p.couleur_statut }}">{{ p.get_statut_display() }}</span></td>
+                                <td class="col-date">{{ p.date_creation|date_fr }}</td>
+                                <td class="col-actions">
+                                    <a href="{{ url('paiement_detail', kwargs={'pk': p.pk}) }}" class="btn btn-secondaire btn-petit">
+                                        <i data-lucide="eye" class="btn-icone"></i> Voir
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if paiements.has_other_pages %}
+                <div class="pagination">
+                    {% if paiements.has_previous() %}
+                        <a href="?page={{ paiements.previous_page_number() }}{% if recherche %}&q={{ recherche }}{% endif %}" class="btn btn-secondaire">
+                            <i data-lucide="chevron-left" class="btn-icone"></i> Precedent
+                        </a>
+                    {% endif %}
+                    <span class="pagination-info">Page {{ paiements.number }} / {{ paiements.paginator.num_pages }}</span>
+                    {% if paiements.has_next() %}
+                        <a href="?page={{ paiements.next_page_number() }}{% if recherche %}&q={{ recherche }}{% endif %}" class="btn btn-secondaire">
+                            Suivant <i data-lucide="chevron-right" class="btn-icone"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="banknote" class="etat-vide-icone"></i>
+                <h3>Aucun paiement</h3>
+                <p>Aucun paiement n'a ete enregistre.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

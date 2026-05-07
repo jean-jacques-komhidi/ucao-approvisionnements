@@ -1,0 +1,94 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Nouvel ordre de paiement - UCAO{% endblock %}
+{% block page_titre %}Nouvel ordre de paiement{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('paiements_bc_a_payer') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux BC a payer
+    </a>
+
+    <form method="post">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>BC a payer</h3>
+                <p>Informations du Bon de Commande lie</p>
+            </div>
+
+            <div class="formulaire feb-detail-grille">
+                <div class="detail-bloc">
+                    <p class="detail-label">N° BC</p>
+                    <p class="detail-valeur">{{ bc.numero }}</p>
+                </div>
+                <div class="detail-bloc">
+                    <p class="detail-label">FEB liee</p>
+                    <p class="detail-valeur">{{ bc.fiche.numero }}</p>
+                </div>
+                <div class="detail-bloc">
+                    <p class="detail-label">Fournisseur</p>
+                    <p class="detail-valeur">{{ bc.fournisseur.code }} — {{ bc.fournisseur.nom }}</p>
+                </div>
+                <div class="detail-bloc">
+                    <p class="detail-label">Montant TTC du BC</p>
+                    <p class="detail-valeur"><strong>{{ bc.montant_ttc|fcfa }} F CFA</strong></p>
+                </div>
+                <div class="detail-bloc">
+                    <p class="detail-label">Solde restant a payer</p>
+                    <p class="detail-valeur" style="color: #DC2626; font-size: 1.1rem;">
+                        <strong>{{ solde_restant|fcfa }} F CFA</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>Ordre de paiement</h3>
+                <p>L'ordre sera envoye au DG pour visa</p>
+            </div>
+
+            <div class="formulaire">
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.montant.id_for_label }}">Montant a payer (F CFA) *</label>
+                    {{ formulaire.montant }}
+                    {% if formulaire.montant.errors %}
+                        <span class="erreur-champ">{{ formulaire.montant.errors[0] }}</span>
+                    {% endif %}
+                    <p class="aide-champ">
+                        <i data-lucide="info" class="info-icone"></i>
+                        Ne peut depasser le solde restant : {{ solde_restant|fcfa }} F CFA
+                    </p>
+                </div>
+
+                <div class="grille-champs-2">
+                    <div class="champ-groupe">
+                        <label for="{{ formulaire.nature.id_for_label }}">Nature du paiement *</label>
+                        {{ formulaire.nature }}
+                    </div>
+                    <div class="champ-groupe">
+                        <label for="{{ formulaire.mode.id_for_label }}">Mode de paiement *</label>
+                        {{ formulaire.mode }}
+                    </div>
+                </div>
+
+                <div class="champ-groupe">
+                    <label for="{{ formulaire.motif.id_for_label }}">Motif / Description</label>
+                    {{ formulaire.motif }}
+                </div>
+            </div>
+        </div>
+
+        <div class="formulaire-actions">
+            <a href="{{ url('paiements_bc_a_payer') }}" class="btn btn-secondaire">Annuler</a>
+            <button type="submit" class="btn btn-principal">
+                <i data-lucide="send" class="btn-icone"></i>
+                Emettre l'ordre de paiement
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

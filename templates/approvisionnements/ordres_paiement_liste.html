@@ -1,0 +1,142 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Ordres de paiement - UCAO{% endblock %}
+{% block page_titre %}Ordres de paiement{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="grille-kpi">
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-bleu">
+                <i data-lucide="files" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Total ordres</p>
+                <p class="kpi-valeur">{{ kpi.total }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-jaune">
+                <i data-lucide="clock" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">En attente visa</p>
+                <p class="kpi-valeur">{{ kpi.en_attente }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-vert">
+                <i data-lucide="check-circle-2" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Vises</p>
+                <p class="kpi-valeur">{{ kpi.vises }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-gris">
+                <i data-lucide="x-circle" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Rejetes</p>
+                <p class="kpi-valeur">{{ kpi.rejetes }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>Liste des ordres de paiement</h2>
+            <p class="bandeau-sous-titre">{{ kpi.total }} ordre(s)</p>
+        </div>
+    </div>
+
+    <div class="carte">
+        <div class="filtres-zone">
+            <form method="get" class="formulaire-filtres">
+                <select name="statut" class="champ-formulaire champ-select" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    {% for valeur, label in statuts %}
+                        <option value="{{ valeur }}" {% if statut_filtre == valeur %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if statut_filtre %}
+                    <a href="{{ url('ordres_paiement_liste') }}" class="btn btn-secondaire">
+                        <i data-lucide="x" class="btn-icone"></i> Reinitialiser
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if ordres %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th>N° Ordre</th>
+                            <th>BC lie</th>
+                            <th>Fournisseur</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                            <th>DFC</th>
+                            <th class="col-date">Date</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ordre in ordres %}
+                            <tr>
+                                <td><strong>{{ ordre.numero }}</strong></td>
+                                <td><span class="badge badge-info">{{ ordre.bc.numero }}</span></td>
+                                <td>{{ ordre.bc.fournisseur.nom|truncate(20) }}</td>
+                                <td><strong>{{ ordre.montant|fcfa }}</strong></td>
+                                <td>
+                                    <span class="badge badge-{{ ordre.couleur_statut }}">
+                                        {{ ordre.get_statut_display() }}
+                                    </span>
+                                </td>
+                                <td>{{ ordre.dfc.nom_complet|truncate(20) }}</td>
+                                <td class="col-date">{{ ordre.date_creation|date_fr }}</td>
+                                <td class="col-actions">
+                                    <a href="{{ url('ordre_paiement_detail', kwargs={'pk': ordre.pk}) }}" class="btn btn-secondaire btn-petit">
+                                        <i data-lucide="eye" class="btn-icone"></i> Voir
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if ordres.has_other_pages %}
+                <div class="pagination">
+                    {% if ordres.has_previous() %}
+                        <a href="?page={{ ordres.previous_page_number() }}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}" class="btn btn-secondaire">
+                            <i data-lucide="chevron-left" class="btn-icone"></i> Precedent
+                        </a>
+                    {% endif %}
+                    <span class="pagination-info">Page {{ ordres.number }} / {{ ordres.paginator.num_pages }}</span>
+                    {% if ordres.has_next() %}
+                        <a href="?page={{ ordres.next_page_number() }}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}" class="btn btn-secondaire">
+                            Suivant <i data-lucide="chevron-right" class="btn-icone"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="files" class="etat-vide-icone"></i>
+                <h3>Aucun ordre</h3>
+                <p>Aucun ordre de paiement n'a ete emis.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

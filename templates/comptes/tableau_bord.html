@@ -1,157 +1,309 @@
 {% extends "base_app.html" %}
 
-{% block titre %}Tableau de bord - UCAO Approvisionnements{% endblock %}
+{% block titre %}Tableau de bord - UCAO{% endblock %}
 {% block page_titre %}Tableau de bord{% endblock %}
 
 {% block contenu %}
-<div class="dashboard">
+<div class="page-dashboard">
 
-    <div class="bandeau-bienvenue">
+    {# ─── BANDEAU DE BIENVENUE ─────────────────────────── #}
+    <div class="dashboard-bienvenue">
         <div>
-            <h2>Bonjour, {{ utilisateur.nom_complet }}</h2>
-            <p class="bandeau-sous-titre">Voici un resume de votre activite</p>
-        </div>
-        <div class="bandeau-badge">
-            {{ role_libelle }}
-        </div>
-    </div>
-
-    <div class="grille-statistiques">
-        {% if est_demandeur %}
-            <div class="carte-stat">
-                <div class="carte-stat-entete">
-                    <div class="carte-stat-icone-wrapper">
-                        <i data-lucide="file-text" class="carte-stat-icone"></i>
-                    </div>
-                    <span class="carte-stat-tendance positive">
-                        <i data-lucide="trending-up" class="tendance-icone"></i>
-                        +0
-                    </span>
-                </div>
-                <div class="carte-stat-corps">
-                    <p class="carte-stat-label">Mes FEB</p>
-                    <p class="carte-stat-valeur">0</p>
-                    <p class="carte-stat-detail">Fiches en cours</p>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if peut_valider_feb %}
-            <div class="carte-stat">
-                <div class="carte-stat-entete">
-                    <div class="carte-stat-icone-wrapper">
-                        <i data-lucide="check-circle-2" class="carte-stat-icone"></i>
-                    </div>
-                    <span class="carte-stat-tendance neutre">A traiter</span>
-                </div>
-                <div class="carte-stat-corps">
-                    <p class="carte-stat-label">FEB a valider</p>
-                    <p class="carte-stat-valeur">0</p>
-                    <p class="carte-stat-detail">En attente</p>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if peut_valider_bc %}
-            <div class="carte-stat">
-                <div class="carte-stat-entete">
-                    <div class="carte-stat-icone-wrapper">
-                        <i data-lucide="clipboard-list" class="carte-stat-icone"></i>
-                    </div>
-                    <span class="carte-stat-tendance neutre">A traiter</span>
-                </div>
-                <div class="carte-stat-corps">
-                    <p class="carte-stat-label">BC a valider</p>
-                    <p class="carte-stat-valeur">0</p>
-                    <p class="carte-stat-detail">Bons de commande</p>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if est_admin %}
-            <div class="carte-stat">
-                <div class="carte-stat-entete">
-                    <div class="carte-stat-icone-wrapper">
-                        <i data-lucide="users" class="carte-stat-icone"></i>
-                    </div>
-                    <span class="carte-stat-tendance positive">
-                        <i data-lucide="trending-up" class="tendance-icone"></i>
-                        Actifs
-                    </span>
-                </div>
-                <div class="carte-stat-corps">
-                    <p class="carte-stat-label">Utilisateurs</p>
-                    <p class="carte-stat-valeur">1</p>
-                    <p class="carte-stat-detail">Comptes geres</p>
-                </div>
-            </div>
-        {% endif %}
-
-        <div class="carte-stat">
-            <div class="carte-stat-entete">
-                <div class="carte-stat-icone-wrapper">
-                    <i data-lucide="bar-chart-3" class="carte-stat-icone"></i>
-                </div>
-                <span class="carte-stat-tendance neutre">Cette annee</span>
-            </div>
-            <div class="carte-stat-corps">
-                <p class="carte-stat-label">Total FEB</p>
-                <p class="carte-stat-valeur">0</p>
-                <p class="carte-stat-detail">Sur l'annee 2025</p>
-            </div>
+            <h2>Bonjour, {{ request.user.nom_complet }} 👋</h2>
+            <p class="bandeau-sous-titre">
+                {{ request.user.get_role_display() }} ·
+                Voici votre cockpit en temps reel
+            </p>
         </div>
     </div>
 
-    <div class="carte">
-        <div class="carte-entete-section">
-            <h3>Etat du projet</h3>
-            <p>Avancement du developpement des modules</p>
+    {# ─── ALERTES INTELLIGENTES ───────────────────────── #}
+    {% if alertes %}
+        <div class="dashboard-alertes">
+            {% for alerte in alertes %}
+                <a href="{{ alerte.lien }}" class="dashboard-alerte dashboard-alerte-{{ alerte.couleur }}">
+                    <i data-lucide="{{ alerte.icone }}" class="alerte-icone"></i>
+                    <span class="alerte-message">{{ alerte.message }}</span>
+                    <i data-lucide="arrow-right" class="alerte-fleche"></i>
+                </a>
+            {% endfor %}
         </div>
-        <div class="carte-contenu">
-            <ul class="liste-statuts">
-                <li class="statut-item">
-                    <div class="statut-info">
-                        <i data-lucide="user-check" class="statut-icone"></i>
-                        <span class="statut-nom">Module Comptes (authentification)</span>
-                    </div>
-                    <span class="badge badge-success">
-                        <i data-lucide="check" class="badge-icone"></i>
-                        Termine
-                    </span>
-                </li>
-                <li class="statut-item">
-                    <div class="statut-info">
-                        <i data-lucide="package" class="statut-icone"></i>
-                        <span class="statut-nom">Module Referentiels</span>
-                    </div>
-                    <span class="badge badge-warning">
-                        <i data-lucide="loader" class="badge-icone"></i>
-                        En cours
-                    </span>
-                </li>
-                <li class="statut-item">
-                    <div class="statut-info">
-                        <i data-lucide="file-text" class="statut-icone"></i>
-                        <span class="statut-nom">Module FEB / BC / Paiements</span>
-                    </div>
-                    <span class="badge badge-neutre">
-                        <i data-lucide="clock" class="badge-icone"></i>
-                        Planifie
-                    </span>
-                </li>
-                <li class="statut-item">
-                    <div class="statut-info">
-                        <i data-lucide="radio" class="statut-icone"></i>
-                        <span class="statut-nom">Extensions IoT &amp; Prediction</span>
-                    </div>
-                    <span class="badge badge-neutre">
-                        <i data-lucide="clock" class="badge-icone"></i>
-                        Planifie
-                    </span>
-                </li>
-            </ul>
-        </div>
+    {% endif %}
+
+    {# ─── KPI ADAPTATIFS ──────────────────────────────── #}
+    <div class="grille-kpi">
+        {% for k in kpi %}
+            <a href="{{ k.lien|default('#') }}" class="kpi-carte kpi-carte-clickable">
+                <div class="kpi-icone-wrapper kpi-{{ k.couleur }}">
+                    <i data-lucide="{{ k.icone }}" class="kpi-icone"></i>
+                </div>
+                <div class="kpi-corps">
+                    <p class="kpi-label">{{ k.label }}</p>
+                    <p class="kpi-valeur">{{ k.valeur }}</p>
+                    {% if k.detail %}
+                        <p class="kpi-detail">{{ k.detail }}</p>
+                    {% endif %}
+                </div>
+            </a>
+        {% endfor %}
     </div>
+
+    {# ─── GRAPHIQUES ──────────────────────────────────── #}
+    <div class="dashboard-graphiques">
+
+        {# Graphique 1 : Montants par mois (line) #}
+        <div class="carte carte-graphique">
+            <div class="carte-entete-section">
+                <h3>Evolution des montants valides</h3>
+                <p>6 derniers mois</p>
+            </div>
+            <div class="graphique-conteneur">
+                <canvas id="graphique-montants-mois"></canvas>
+            </div>
+        </div>
+
+        {# Graphique 2 : Repartition statuts FEB (doughnut) #}
+        <div class="carte carte-graphique">
+            <div class="carte-entete-section">
+                <h3>Repartition par statut FEB</h3>
+                <p>Etat actuel</p>
+            </div>
+            <div class="graphique-conteneur">
+                <canvas id="graphique-statuts-feb"></canvas>
+            </div>
+        </div>
+
+        {# Graphique 3 : Top fournisseurs (bar) #}
+        <div class="carte carte-graphique">
+            <div class="carte-entete-section">
+                <h3>Top 5 fournisseurs</h3>
+                <p>Par montant cumule</p>
+            </div>
+            <div class="graphique-conteneur">
+                <canvas id="graphique-top-fournisseurs"></canvas>
+            </div>
+        </div>
+
+        {# Graphique 4 : Evolution paiements (area) #}
+        <div class="carte carte-graphique">
+            <div class="carte-entete-section">
+                <h3>Paiements executes</h3>
+                <p>6 derniers mois</p>
+            </div>
+            <div class="graphique-conteneur">
+                <canvas id="graphique-paiements"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    {# ─── ACTIVITES RECENTES ─────────────────────────── #}
+    {% if activites %}
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>Activites recentes</h3>
+                <p>Derniers documents</p>
+            </div>
+
+            <div class="dashboard-activites">
+                {% for act in activites %}
+                    <a href="{{ act.url }}" class="activite-item">
+                        <div class="activite-icone-wrapper activite-{{ act.couleur }}">
+                            <i data-lucide="{{ act.icone }}" class="activite-icone"></i>
+                        </div>
+
+                        <div class="activite-corps">
+                            <div class="activite-entete">
+                                <strong>{{ act.titre }}</strong>
+                                <span class="activite-date">{{ act.date|date_fr }}</span>
+                            </div>
+                            <p class="activite-description">{{ act.description }}</p>
+                        </div>
+
+                        <div class="activite-meta">
+                            <span class="badge badge-{{ act.couleur }} badge-petit">
+                                {{ act.statut }}
+                            </span>
+                            {% if act.montant %}
+                                <span class="activite-montant">{{ act.montant|fcfa }} F</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 
 </div>
+
+{# ─── CHART.JS ──────────────────────────────────────────── #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Donnees injectees depuis le contexte Django
+    const dataMontantsMois = {{ graphiques.montants_mois|safe }};
+    const dataStatutsFeb = {{ graphiques.repartition_statuts|safe }};
+    const dataTopFournisseurs = {{ graphiques.top_fournisseurs|safe }};
+    const dataPaiements = {{ graphiques.evolution_paiements|safe }};
+
+    // Detection du theme
+    const themeEstSombre = document.documentElement.getAttribute('data-theme') === 'dark';
+    const couleurTexte = themeEstSombre ? '#E5E7EB' : '#1F2937';
+    const couleurGrille = themeEstSombre ? '#374151' : '#E5E7EB';
+
+    // Format F CFA
+    const formaterFCFA = (valeur) => {
+        return new Intl.NumberFormat('fr-FR').format(Math.round(valeur)) + ' F';
+    };
+
+    // ─── 1. Montants par mois (line) ────────────────────
+    new Chart(document.getElementById('graphique-montants-mois'), {
+        type: 'line',
+        data: {
+            labels: dataMontantsMois.labels,
+            datasets: [{
+                label: 'Montant valide',
+                data: dataMontantsMois.valeurs,
+                borderColor: '#2563EB',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#2563EB',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => formaterFCFA(ctx.parsed.y),
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: couleurTexte, callback: formaterFCFA },
+                    grid: { color: couleurGrille },
+                },
+                x: {
+                    ticks: { color: couleurTexte },
+                    grid: { display: false },
+                }
+            }
+        }
+    });
+
+    // ─── 2. Repartition statuts FEB (doughnut) ──────────
+    new Chart(document.getElementById('graphique-statuts-feb'), {
+        type: 'doughnut',
+        data: {
+            labels: dataStatutsFeb.labels,
+            datasets: [{
+                data: dataStatutsFeb.valeurs,
+                backgroundColor: dataStatutsFeb.couleurs,
+                borderWidth: 2,
+                borderColor: themeEstSombre ? '#1F2937' : '#FFFFFF',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: couleurTexte, padding: 12 },
+                },
+            }
+        }
+    });
+
+    // ─── 3. Top fournisseurs (bar) ──────────────────────
+    new Chart(document.getElementById('graphique-top-fournisseurs'), {
+        type: 'bar',
+        data: {
+            labels: dataTopFournisseurs.labels,
+            datasets: [{
+                label: 'Montant',
+                data: dataTopFournisseurs.valeurs,
+                backgroundColor: ['#7C3AED', '#2563EB', '#059669', '#F59E0B', '#DC2626'],
+                borderRadius: 8,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => formaterFCFA(ctx.parsed.x),
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { color: couleurTexte, callback: formaterFCFA },
+                    grid: { color: couleurGrille },
+                },
+                y: {
+                    ticks: { color: couleurTexte },
+                    grid: { display: false },
+                }
+            }
+        }
+    });
+
+    // ─── 4. Evolution paiements (area) ──────────────────
+    new Chart(document.getElementById('graphique-paiements'), {
+        type: 'line',
+        data: {
+            labels: dataPaiements.labels,
+            datasets: [{
+                label: 'Paiements executes',
+                data: dataPaiements.valeurs,
+                borderColor: '#059669',
+                backgroundColor: 'rgba(5, 150, 105, 0.15)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#059669',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => formaterFCFA(ctx.parsed.y),
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: couleurTexte, callback: formaterFCFA },
+                    grid: { color: couleurGrille },
+                },
+                x: {
+                    ticks: { color: couleurTexte },
+                    grid: { display: false },
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

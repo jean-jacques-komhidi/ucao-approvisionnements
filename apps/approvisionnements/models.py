@@ -45,6 +45,40 @@ class StatutBC(models.TextChoices):
     SUPPRIME = "SUPPRIME", "Supprime"
 
 
+class StatutOrdrePaiement(models.TextChoices):
+    """Statuts de l'ordre de paiement."""
+
+    EN_ATTENTE_VISA = "EN_ATTENTE_VISA", "En attente du visa DG"
+    VISA_OK = "VISA_OK", "Visa accorde"
+    REJETE_DG = "REJETE_DG", "Rejete par DG"
+
+
+class StatutPaiement(models.TextChoices):
+    """Statuts du paiement final."""
+
+    EN_ATTENTE = "EN_ATTENTE", "En attente d'execution"
+    ACOMPTE = "ACOMPTE", "Acompte verse"
+    PAYE = "PAYE", "Paye integralement"
+    REJETE = "REJETE", "Rejete (montant incorrect)"
+
+
+class ModePaiement(models.TextChoices):
+    """Mode de paiement."""
+
+    ESPECES = "ESPECES", "Especes"
+    CHEQUE = "CHEQUE", "Cheque"
+    VIREMENT = "VIREMENT", "Virement bancaire"
+    MOBILE_MONEY = "MOBILE_MONEY", "Mobile Money (Orange/Wave)"
+
+
+class NaturePaiement(models.TextChoices):
+    """Nature du paiement."""
+
+    INTEGRAL = "INTEGRAL", "Paiement integral"
+    ACOMPTE = "ACOMPTE", "Acompte"
+    SOLDE = "SOLDE", "Solde"
+
+
 class OrigineFEB(models.TextChoices):
     """Origine de creation d'une FEB."""
 
@@ -351,3 +385,228 @@ class BonCommande(models.Model):
     def lignes(self):
         """Lignes du BC = lignes de la FEB liee (relation indirecte)."""
         return self.fiche.lignes.all()
+    
+
+# ═══════════════════════════════════════════════════════════════════
+# ORDRE DE PAIEMENT (DFC ordonne, DG vise)
+# ═══════════════════════════════════════════════════════════════════
+class OrdrePaiement(models.Model):
+    """
+    Ordre de paiement emis par le DFC, vise par le DG.
+
+    Workflow : EN_ATTENTE_VISA -> VISA_OK / REJETE_DG
+    """
+
+    numero = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False,
+        verbose_name="Numero ordre de paiement",
+    )
+
+    bc = models.ForeignKey(
+        BonCommande,
+        on_delete=models.PROTECT,
+        related_name="ordres_paiement",
+        verbose_name="Bon de Commande",
+    )
+
+    dfc = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="ordres_emis",
+        verbose_name="DFC emetteur",
+    )
+
+    montant = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        verbose_name="Montant a payer",
+    )
+
+    nature = models.CharField(
+        max_length=15,
+        choices=NaturePaiement.choices,
+        default=NaturePaiement.INTEGRAL,
+    )
+
+    mode = models.CharField(
+        max_length=15,
+        choices=ModePaiement.choices,
+        default=ModePaiement.VIREMENT,
+    )
+
+    statut = models.CharField(
+        max_length=20,
+        choices=StatutOrdrePaiement.choices,
+        default=StatutOrdrePaiement.EN_ATTENTE_VISA,
+        db_index=True,
+    )
+
+    motif = models.TextField(
+        blank=True, default="",
+        help_text="Motif de l'ordre (ou motif de rejet si statut REJETE_DG).",
+    )
+
+    # Visa DG
+    dg = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="visas_donnes",
+        null=True, blank=True,
+        verbose_name="DG visa",
+    )
+    date_visa = models.DateTimeField(null=True, blank=True)
+
+    # Horodatage
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "ordre_paiement"
+        verbose_name = "Ordre de paiement"
+        verbose_name_plural = "Ordres de paiement"
+        ordering = ["-date_creation"]
+        indexes = [
+            models.Index(fields=["statut"]),
+            models.Index(fields=["bc"]),
+            models.Index(fields=["-date_creation"]),
+        ]
+
+    def __str__(self):
+        return f"{self.numero} — {self.bc.numero} ({self.montant} F)"
+
+    @property
+    def couleur_statut(self):
+        return {
+            StatutOrdrePaiement.EN_ATTENTE_VISA: "warning",
+            StatutOrdrePaiement.VISA_OK: "success",
+            StatutOrdrePaiement.REJETE_DG: "error",
+        }.get(self.statut, "neutre")
+
+    @property
+    def peut_etre_vise(self):
+        return self.statut == StatutOrdrePaiement.EN_ATTENTE_VISA
+
+
+# ═══════════════════════════════════════════════════════════════════
+# PAIEMENT (Comptable execute)
+# ═══════════════════════════════════════════════════════════════════
+class Paiement(models.Model):
+    """
+    Paiement execute par le Comptable apres visa DG.
+
+    Verification automatique : montant_verse <= bc.montant_ttc
+    Calcul automatique : solde_restant = bc.montant_ttc - somme_payee
+    """
+
+    numero = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False,
+        verbose_name="Numero de paiement",
+    )
+
+    bc = models.ForeignKey(
+        BonCommande,
+        on_delete=models.PROTECT,
+        related_name="paiements",
+        verbose_name="Bon de Commande",
+    )
+
+    ordre = models.ForeignKey(
+        OrdrePaiement,
+        on_delete=models.PROTECT,
+        related_name="paiements",
+        verbose_name="Ordre de paiement lie",
+    )
+
+    comptable = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="paiements_executes",
+        verbose_name="Comptable executeur",
+    )
+
+    montant_verse = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        verbose_name="Montant verse",
+    )
+
+    nature = models.CharField(
+        max_length=15,
+        choices=NaturePaiement.choices,
+        default=NaturePaiement.INTEGRAL,
+    )
+
+    mode = models.CharField(
+        max_length=15,
+        choices=ModePaiement.choices,
+        default=ModePaiement.VIREMENT,
+    )
+
+    reference = models.CharField(
+        max_length=100,
+        blank=True, default="",
+        help_text="N° cheque, ID transaction, ref virement, etc.",
+    )
+
+    est_acompte = models.BooleanField(default=False)
+
+    solde_restant = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        help_text="Solde restant a payer (calcule auto).",
+    )
+
+    statut = models.CharField(
+        max_length=15,
+        choices=StatutPaiement.choices,
+        default=StatutPaiement.EN_ATTENTE,
+        db_index=True,
+    )
+
+    motif_rejet = models.TextField(blank=True, default="")
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+    date_execution = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "paiement"
+        verbose_name = "Paiement"
+        verbose_name_plural = "Paiements"
+        ordering = ["-date_creation"]
+        indexes = [
+            models.Index(fields=["statut"]),
+            models.Index(fields=["bc"]),
+            models.Index(fields=["-date_creation"]),
+        ]
+
+    def __str__(self):
+        return f"{self.numero} — {self.bc.numero} ({self.montant_verse} F)"
+
+    @property
+    def couleur_statut(self):
+        return {
+            StatutPaiement.EN_ATTENTE: "warning",
+            StatutPaiement.ACOMPTE: "info",
+            StatutPaiement.PAYE: "success",
+            StatutPaiement.REJETE: "error",
+        }.get(self.statut, "neutre")
+
+    @property
+    def total_deja_paye(self):
+        """Somme des paiements PAYE/ACOMPTE pour ce BC (hors le paiement courant)."""
+        from django.db.models import Sum
+
+        return (
+            Paiement.objects
+            .filter(bc=self.bc)
+            .exclude(pk=self.pk)
+            .filter(statut__in=[StatutPaiement.PAYE, StatutPaiement.ACOMPTE])
+            .aggregate(total=Sum("montant_verse"))["total"]
+            or Decimal("0.00")
+        )

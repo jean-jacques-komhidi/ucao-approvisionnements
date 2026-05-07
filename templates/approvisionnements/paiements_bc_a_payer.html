@@ -1,0 +1,122 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Paiements - BC a payer - UCAO{% endblock %}
+{% block page_titre %}Bons de Commande a payer{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="grille-kpi">
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-jaune">
+                <i data-lucide="wallet" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">BC a payer</p>
+                <p class="kpi-valeur">{{ kpi.total_a_payer }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-violet">
+                <i data-lucide="trending-up" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Montant total a payer</p>
+                <p class="kpi-valeur">{{ kpi.montant_a_payer|fcfa }}</p>
+                <p class="kpi-detail">F CFA</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-bleu">
+                <i data-lucide="clock" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Ordres en attente</p>
+                <p class="kpi-valeur">{{ kpi.ordres_en_attente }}</p>
+                <p class="kpi-detail">visa DG</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-vert">
+                <i data-lucide="check-circle-2" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Paye ce mois</p>
+                <p class="kpi-valeur">{{ kpi.paye_ce_mois|fcfa }}</p>
+                <p class="kpi-detail">F CFA</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>BC valides en attente de paiement</h2>
+            <p class="bandeau-sous-titre">{{ kpi.total_a_payer }} BC a traiter</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{{ url('ordres_paiement_liste') }}" class="btn btn-secondaire">
+                <i data-lucide="list" class="btn-icone"></i>
+                Ordres de paiement
+            </a>
+            <a href="{{ url('paiements_historique') }}" class="btn btn-secondaire">
+                <i data-lucide="history" class="btn-icone"></i>
+                Historique
+            </a>
+        </div>
+    </div>
+
+    <div class="carte">
+        {% if bc_list %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th>BC</th>
+                            <th>Fournisseur</th>
+                            <th>Montant TTC</th>
+                            <th>Solde a payer</th>
+                            <th class="col-date">Date validation</th>
+                            <th class="col-actions">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bc in bc_list %}
+                            <tr>
+                                <td><strong>{{ bc.numero }}</strong></td>
+                                <td>{{ bc.fournisseur.nom|truncate(30) }}</td>
+                                <td>{{ bc.montant_ttc|fcfa }}</td>
+                                <td><strong style="color: #DC2626;">{{ bc.montant_ttc|fcfa }}</strong></td>
+                                <td class="col-date">{{ bc.date_validation|date_fr }}</td>
+                                <td class="col-actions">
+                                    <div class="boutons-actions">
+                                        <a href="{{ url('bc_detail', kwargs={'pk': bc.pk}) }}" class="btn btn-secondaire btn-petit">
+                                            <i data-lucide="eye" class="btn-icone"></i>
+                                            Voir BC
+                                        </a>
+                                        {% if request.user.role in ['dfc', 'admin'] %}
+                                            <a href="{{ url('ordre_paiement_creer', kwargs={'bc_pk': bc.pk}) }}" class="btn btn-principal btn-petit">
+                                                <i data-lucide="plus" class="btn-icone"></i>
+                                                Ordre paiement
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="check-circle-2" class="etat-vide-icone"></i>
+                <h3>Aucun BC en attente</h3>
+                <p>Tous les BC valides ont ete payes integralement.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

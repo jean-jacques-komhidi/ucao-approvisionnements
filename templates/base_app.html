@@ -70,11 +70,12 @@
                         </a>
                     {% endif %}
 
-                    <a href="#" class="nav-item nav-item-disabled" title="Module en cours de developpement">
-                        <i data-lucide="wallet" class="nav-icone"></i>
-                        <span class="nav-label">Paiements</span>
-                        <span class="nav-badge">Bientot</span>
-                    </a>
+                    {% if request.user.role in ['dfc', 'dg', 'comptable', 'admin'] %}
+                        <a href="{{ url('paiements_bc_a_payer') }}" class="nav-item">
+                            <i data-lucide="wallet" class="nav-icone"></i>
+                            <span class="nav-label">Paiements</span>
+                        </a>
+                    {% endif %}
                 </div>
 
                 {# ─── Section : Referentiels ──────────────────────────── #}

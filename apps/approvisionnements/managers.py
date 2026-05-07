@@ -3,8 +3,6 @@ from django.db import models
 
 
 class FicheExpressionManager(models.Manager):
-    """Manager pour FicheExpression."""
-
     def non_supprimees(self):
         return self.filter(est_supprimee=False)
 
@@ -25,8 +23,6 @@ class FicheExpressionManager(models.Manager):
 
 
 class LigneFicheManager(models.Manager):
-    """Manager pour LigneFiche."""
-
     def articles(self):
         from .models import TypeLigne
         return self.filter(type_ligne=TypeLigne.ARTICLE)
@@ -37,8 +33,6 @@ class LigneFicheManager(models.Manager):
 
 
 class BonCommandeManager(models.Manager):
-    """Manager pour BonCommande."""
-
     def non_supprimes(self):
         return self.filter(est_supprime=False)
 
@@ -52,3 +46,23 @@ class BonCommandeManager(models.Manager):
 
     def envoyes(self):
         return self.non_supprimes().filter(est_envoye_fournisseur=True)
+
+    def a_payer(self):
+        """BC valides sans paiement complet (= a payer)."""
+        from .models import StatutBC, StatutPaiement
+        from django.db.models import Sum
+
+        # BC valides
+        bc_valides = self.non_supprimes().filter(statut=StatutBC.VALIDE)
+
+        # On exclut ceux qui sont deja entierement payes
+        bc_a_payer_ids = []
+        for bc in bc_valides:
+            total_paye = (
+                bc.paiements.filter(statut=StatutPaiement.PAYE)
+                .aggregate(total=Sum("montant_verse"))["total"]
+            )
+            if total_paye is None or total_paye < bc.montant_ttc:
+                bc_a_payer_ids.append(bc.pk)
+
+        return bc_valides.filter(pk__in=bc_a_payer_ids)

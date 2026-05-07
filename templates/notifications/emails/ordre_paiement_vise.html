@@ -1,0 +1,54 @@
+{% extends "notifications/emails/base_email.html" %}
+
+{% block bandeau %}
+<tr>
+    <td style="background-color: #D1FAE5; padding: 15px 40px; border-bottom: 3px solid #059669;">
+        <p style="color: #065F46; margin: 0; font-size: 14px; font-weight: 600;">
+            ✅ Visa accorde
+        </p>
+    </td>
+</tr>
+{% endblock %}
+
+{% block contenu %}
+<h2 style="color: #1A1A1A; font-size: 22px; margin: 0 0 20px 0;">
+    Visa DG accorde - Paiement a executer
+</h2>
+
+<p style="color: #444444; font-size: 15px; line-height: 1.6;">
+    Le DG <strong>{{ ordre.dg.nom_complet }}</strong> a accorde le visa
+    a l'ordre <strong>{{ ordre.numero }}</strong>. Le paiement peut maintenant
+    etre execute par le comptable.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F0FDF4; border-left: 4px solid #059669; border-radius: 4px; padding: 20px; margin: 25px 0;">
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">N° Ordre :</td>
+        <td style="padding: 5px 0; font-weight: 600; color: #1A1A1A;">{{ ordre.numero }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">BC :</td>
+        <td style="padding: 5px 0; color: #1A1A1A;">{{ ordre.bc.numero }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">Fournisseur :</td>
+        <td style="padding: 5px 0; color: #1A1A1A;">{{ ordre.bc.fournisseur.nom }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px 0; color: #6B7280; font-size: 13px;">Montant a payer :</td>
+        <td style="padding: 5px 0; font-weight: 700; color: #059669; font-size: 18px;">
+            {{ ordre.montant|fcfa }} F CFA
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin: 25px 0;">
+    <tr>
+        <td>
+            <a href="{{ url_ordre }}" style="background-color: #059669; color: #FFFFFF; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block;">
+                Voir l'ordre →
+            </a>
+        </td>
+    </tr>
+</table>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ ordre.numero }} - UCAO{% endblock %}
+{% block page_titre %}{{ ordre.numero }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('ordres_paiement_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux ordres
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section feb-entete-detail">
+            <div>
+                <h3>{{ ordre.numero }}</h3>
+                <p>Ordre de paiement pour {{ ordre.bc.numero }}</p>
+            </div>
+            <span class="badge badge-{{ ordre.couleur_statut }} badge-grand">
+                {{ ordre.get_statut_display() }}
+            </span>
+        </div>
+
+        <div class="formulaire feb-detail-grille">
+            <div class="detail-bloc">
+                <p class="detail-label">BC lie</p>
+                <p class="detail-valeur">
+                    <a href="{{ url('bc_detail', kwargs={'pk': ordre.bc.pk}) }}">{{ ordre.bc.numero }}</a>
+                </p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Fournisseur</p>
+                <p class="detail-valeur">{{ ordre.bc.fournisseur.code }} — {{ ordre.bc.fournisseur.nom }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Montant ordonne</p>
+                <p class="detail-valeur"><strong>{{ ordre.montant|fcfa }} F CFA</strong></p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Nature</p>
+                <p class="detail-valeur">{{ ordre.get_nature_display() }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Mode</p>
+                <p class="detail-valeur">{{ ordre.get_mode_display() }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">DFC emetteur</p>
+                <p class="detail-valeur">{{ ordre.dfc.nom_complet }}</p>
+            </div>
+            {% if ordre.dg %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Visa DG</p>
+                    <p class="detail-valeur">{{ ordre.dg.nom_complet }}</p>
+                </div>
+                <div class="detail-bloc">
+                    <p class="detail-label">Date du visa</p>
+                    <p class="detail-valeur">{{ ordre.date_visa|date_fr }}</p>
+                </div>
+            {% endif %}
+            {% if ordre.motif %}
+                <div class="detail-bloc detail-bloc-large">
+                    <p class="detail-label">Motif</p>
+                    <p class="detail-valeur">{{ ordre.motif }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ─── ACTIONS DG (Visa) ──────────────────────────────── #}
+    {% if peut_viser %}
+        <div class="carte carte-actions">
+            <div class="carte-entete-section">
+                <h3>Visa du Directeur General</h3>
+                <p>En tant que DG, accordez ou rejetez le visa</p>
+            </div>
+
+            <div class="formulaire">
+                <form method="post" action="{{ url('ordre_paiement_viser', kwargs={'pk': ordre.pk}) }}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+                    <div class="actions-validation">
+                        <button type="submit" name="action" value="accepter" class="btn btn-principal" onclick="return confirm('Accorder le visa ?');">
+                            <i data-lucide="check-circle-2" class="btn-icone"></i>
+                            Accorder le visa
+                        </button>
+
+                        <details class="bloc-rejet">
+                            <summary class="btn btn-danger">
+                                <i data-lucide="x-circle" class="btn-icone"></i>
+                                Rejeter avec motif
+                            </summary>
+                            <div class="formulaire-rejet">
+                                <div class="champ-groupe">
+                                    <label for="motif-rejet">Motif du rejet *</label>
+                                    <textarea id="motif-rejet" name="motif_rejet" rows="3" class="champ-formulaire" placeholder="Indiquez la raison..."></textarea>
+                                </div>
+                                <button type="submit" name="action" value="rejeter" class="btn btn-danger">
+                                    Confirmer le rejet
+                                </button>
+                            </div>
+                        </details>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {# ─── EXECUTION COMPTABLE ────────────────────────────── #}
+    {% if peut_executer %}
+        <div class="carte carte-actions">
+            <div class="carte-entete-section">
+                <h3>Execution du paiement</h3>
+                <p>L'ordre a recu le visa DG. Procedez au paiement.</p>
+            </div>
+            <div class="formulaire">
+                <a href="{{ url('paiement_executer', kwargs={'ordre_pk': ordre.pk}) }}" class="btn btn-principal">
+                    <i data-lucide="banknote" class="btn-icone"></i>
+                    Executer le paiement
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    {# ─── PAIEMENTS DEJA EFFECTUES ──────────────────────── #}
+    {% set paiements = ordre.paiements.all() %}
+    {% if paiements %}
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>Paiements lies</h3>
+            </div>
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th>N° Paiement</th>
+                            <th>Montant verse</th>
+                            <th>Mode</th>
+                            <th>Statut</th>
+                            <th>Date</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in paiements %}
+                            <tr>
+                                <td><strong>{{ p.numero }}</strong></td>
+                                <td>{{ p.montant_verse|fcfa }}</td>
+                                <td>{{ p.get_mode_display() }}</td>
+                                <td><span class="badge badge-{{ p.couleur_statut }}">{{ p.get_statut_display() }}</span></td>
+                                <td>{{ p.date_creation|date_fr }}</td>
+                                <td class="col-actions">
+                                    <a href="{{ url('paiement_detail', kwargs={'pk': p.pk}) }}" class="btn btn-secondaire btn-petit">
+                                        <i data-lucide="eye" class="btn-icone"></i> Voir
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
