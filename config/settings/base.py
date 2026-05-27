@@ -25,9 +25,22 @@ load_dotenv(BASE_DIR / ".env")
 # ═══════════════════════════════════════════════════════════════════
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-CHANGEZ-MOI-EN-PROD")
 DEBUG = False  # Surchargé en development.py
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    ".ngrok-free.app",       # ngrok gratuit (.app)
+    ".ngrok-free.dev",       # ngrok gratuit (.dev) ← NOUVEAU
+    ".ngrok.app",            # ngrok payant
+    ".ngrok.io",             # ngrok ancien format
+]
 
-
+# Autoriser ngrok pour les requetes POST (formulaires)
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ngrok-free.app",
+    "https://*.ngrok-free.dev",  # ← NOUVEAU
+    "https://*.ngrok.app",
+    "https://*.ngrok.io",
+]
 # ═══════════════════════════════════════════════════════════════════
 # APPLICATIONS
 # ═══════════════════════════════════════════════════════════════════
