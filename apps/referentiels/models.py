@@ -117,6 +117,37 @@ class Article(models.Model):
         help_text="Faux = article retire du catalogue (suppression logique).",
     )
 
+    # ═══════════════════════════════════════════════════════════════
+    # GESTION DE STOCK
+    # ═══════════════════════════════════════════════════════════════
+    gestion_stock_active = models.BooleanField(
+        default=False,
+        verbose_name="Gestion stock activee",
+        help_text="Si False, l'article n'est pas gere en stock (services, equipements uniques)",
+    )
+
+    quantite_stock = models.IntegerField(
+        default=0,
+        verbose_name="Quantite en stock",
+    )
+
+    seuil_alerte = models.IntegerField(
+        default=0,
+        verbose_name="Seuil d'alerte",
+        help_text="Si quantite_stock <= seuil_alerte, alerte declenchee",
+    )
+
+    quantite_a_commander = models.IntegerField(
+        default=0,
+        verbose_name="Quantite a commander",
+        help_text="Quantite suggeree lors d'une commande automatique",
+    )
+
+    derniere_alerte = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Derniere fois qu'une alerte a ete declenchee (evite spam)",
+    )
+
     cree_par = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -156,6 +187,42 @@ class Article(models.Model):
             except ValueError:
                 return None
         return None
+
+
+    @property
+    def est_en_rupture(self):
+        """True si le stock est a zero."""
+        return self.gestion_stock_active and self.quantite_stock <= 0
+
+    @property
+    def est_sous_seuil(self):
+        """True si le stock est en dessous du seuil d'alerte."""
+        return (
+            self.gestion_stock_active
+            and self.seuil_alerte > 0
+            and self.quantite_stock <= self.seuil_alerte
+        )
+
+    @property
+    def statut_stock(self):
+        """Retourne 'rupture', 'sous_seuil', 'ok' ou 'non_geres'."""
+        if not self.gestion_stock_active:
+            return "non_geres"
+        if self.est_en_rupture:
+            return "rupture"
+        if self.est_sous_seuil:
+            return "sous_seuil"
+        return "ok"
+
+    @property
+    def couleur_stock(self):
+        """Couleur badge selon le statut de stock."""
+        return {
+            "rupture": "error",
+            "sous_seuil": "warning",
+            "ok": "success",
+            "non_geres": "neutre",
+        }.get(self.statut_stock, "neutre")
 
 
 # ═══════════════════════════════════════════════════════════════════

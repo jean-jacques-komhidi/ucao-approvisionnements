@@ -22,9 +22,17 @@
 </head>
 <body>
 
+    {# ─── BOUTON HAMBURGER (visible uniquement sur mobile/tablette) ───── #}
+    <button id="btn-burger" class="btn-burger" aria-label="Menu" onclick="toggleSidebar()">
+        <i data-lucide="menu" id="burger-icone"></i>
+    </button>
+
+    {# ─── OVERLAY SOMBRE (apparait quand sidebar ouverte sur mobile) ──── #}
+    <div id="overlay-sidebar" class="overlay-sidebar" onclick="toggleSidebar()"></div>
+
     <div class="app-layout">
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar-principale">
             <div class="sidebar-header">
                 <div class="logo">
                     <div class="logo-icone">U</div>
@@ -76,6 +84,35 @@
                             <span class="nav-label">Paiements</span>
                         </a>
                     {% endif %}
+
+                    {% if request.user.role in ['admin', 'resp_appro'] %}
+                        <p class="nav-titre" style="margin-top: 1.5rem;">EXTENSIONS</p>
+
+                        <a href="{{ url('iot_dashboard') }}" class="nav-item">
+                            <i data-lucide="radio" class="nav-icone"></i>
+                            <span class="nav-label">IoT Dashboard</span>
+                        </a>
+
+                        <a href="{{ url('iot_equipements_liste') }}" class="nav-item">
+                            <i data-lucide="package" class="nav-icone"></i>
+                            <span class="nav-label">Equipements</span>
+                        </a>
+
+                        <a href="{{ url('iot_alertes_liste') }}" class="nav-item">
+                            <i data-lucide="alert-triangle" class="nav-icone"></i>
+                            <span class="nav-label">Alertes IoT</span>
+                            {% if request.user.is_authenticated %}
+                                {% set nb_alertes = 0 %}
+                                {# Le compteur exact necessiterait un context processor — on omet pour simplicite #}
+                            {% endif %}
+                        </a>
+
+                        <a href="{{ url('iot_zones_liste') }}" class="nav-item">
+                            <i data-lucide="map" class="nav-icone"></i>
+                            <span class="nav-label">Zones</span>
+                        </a>
+                    {% endif %}
+
                 </div>
 
                 {# ─── Section : Referentiels ──────────────────────────── #}
@@ -86,6 +123,13 @@
                         <i data-lucide="package" class="nav-icone"></i>
                         <span class="nav-label">Articles</span>
                     </a>
+
+                    {% if request.user.role in ['resp_appro', 'admin', 'chef_cce', 'chef_slmg'] %}
+                        <a href="{{ url('articles_stock') }}" class="nav-item">
+                            <i data-lucide="boxes" class="nav-icone"></i>
+                            <span class="nav-label">Gestion stock</span>
+                        </a>
+                    {% endif %}
 
                     <a href="{{ url('services_liste') }}" class="nav-item">
                         <i data-lucide="briefcase" class="nav-icone"></i>
@@ -166,6 +210,55 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="{{ static('js/base.js') }}"></script>
+
+    {# ─── JS POUR LE MENU HAMBURGER ──────────────────────────── #}
+    <script>
+        // Toggle sidebar sur mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar-principale');
+            const overlay = document.getElementById('overlay-sidebar');
+            const burgerIcone = document.getElementById('burger-icone');
+
+            if (sidebar) {
+                sidebar.classList.toggle('sidebar-ouverte');
+                overlay.classList.toggle('overlay-actif');
+
+                // Change icone : menu <-> x
+                if (sidebar.classList.contains('sidebar-ouverte')) {
+                    burgerIcone.setAttribute('data-lucide', 'x');
+                } else {
+                    burgerIcone.setAttribute('data-lucide', 'menu');
+                }
+
+                // Re-init lucide pour le changement d'icone
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        // Ferme la sidebar si on clique sur un lien (mobile/tablette uniquement)
+        document.addEventListener('DOMContentLoaded', function() {
+            const liensSidebar = document.querySelectorAll('.sidebar .nav-item');
+            liensSidebar.forEach(lien => {
+                lien.addEventListener('click', function() {
+                    if (window.innerWidth <= 1024) {
+                        const sidebar = document.getElementById('sidebar-principale');
+                        const overlay = document.getElementById('overlay-sidebar');
+                        if (sidebar && sidebar.classList.contains('sidebar-ouverte')) {
+                            sidebar.classList.remove('sidebar-ouverte');
+                            overlay.classList.remove('overlay-actif');
+                            document.getElementById('burger-icone').setAttribute('data-lucide', 'menu');
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
     {% block scripts_extra %}{% endblock %}
 </body>
 </html>

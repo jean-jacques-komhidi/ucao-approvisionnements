@@ -2566,3 +2566,687 @@ svg.lucide {
     font-weight: 600;
     color: var(--texte-principal);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   EXTENSION IOT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Carte des zones ─────────────────────────────────────── */
+.iot-carte-zones {
+    padding: 1rem;
+}
+
+/* ─── Grille zones (dashboard) ────────────────────────────── */
+.iot-zones-grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.iot-zone-carte {
+    padding: 1.25rem;
+    border-radius: var(--rayon-md);
+    background-color: var(--fond-secondaire);
+    border: 1px solid var(--bordure-claire);
+    text-align: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.iot-zone-carte:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-sm);
+}
+
+.iot-zone-corps {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.iot-zone-nom {
+    font-weight: 600;
+    color: var(--texte-principal);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.iot-zone-count {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2563EB;
+    margin: 0;
+    line-height: 1;
+}
+
+.iot-zone-detail {
+    font-size: 0.75rem;
+    color: var(--texte-tertiaire);
+    margin: 0;
+}
+
+/* ─── Grille zones detaillees ─────────────────────────────── */
+.iot-zones-grille-detail {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+}
+
+.iot-zone-detaillee {
+    background: var(--fond-secondaire);
+    border: 2px solid #10B981;
+    border-radius: var(--rayon-md);
+    padding: 1.25rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.iot-zone-detaillee:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--ombre-md);
+}
+
+.iot-zone-non-autorisee {
+    border-color: #DC2626;
+    background-color: rgba(220, 38, 38, 0.04);
+}
+
+[data-theme="dark"] .iot-zone-non-autorisee {
+    background-color: rgba(220, 38, 38, 0.08);
+}
+
+.iot-zone-detaillee-entete {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--bordure-claire);
+}
+
+.iot-zone-detaillee-entete h3 {
+    margin: 0;
+    color: var(--texte-principal);
+    font-size: 1.1rem;
+}
+
+.iot-zone-detaillee-corps p {
+    margin: 0.4rem 0;
+    color: var(--texte-secondaire);
+    font-size: 0.9rem;
+}
+
+.iot-zone-detaillee-corps strong {
+    color: var(--texte-principal);
+}
+
+/* ─── Bouton actif (filtre) ───────────────────────────────── */
+.btn-actif {
+    background-color: var(--principal) !important;
+    color: white !important;
+    border-color: var(--principal) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GESTION STOCK - Aeration des filtres
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Espace entre les filtres et le tableau */
+.page-liste .bandeau-actions {
+    margin-bottom: 1.5rem;
+}
+
+/* Si bandeau actions juste avant une carte (tableau), ajout marge supplementaire */
+.page-liste .bandeau-actions + .carte {
+    margin-top: 0.5rem;
+}
+
+/* Padding interne plus genereux sur les tableaux stock */
+.page-liste .carte > .tableau-conteneur {
+    padding: 0.5rem 0;
+}
+
+/* Plus d'air entre les KPI et le bandeau de filtres */
+.page-liste .grille-kpi + .bandeau-actions {
+    margin-top: 0.5rem;
+}
+
+/* Boutons filtres dans le bandeau plus aeres */
+.bandeau-actions > div[style*="display: flex"] {
+    gap: 0.6rem !important;
+}
+
+/* Si filtres dans une zone separee (.filtres-zone), padding correct */
+.filtres-zone {
+    padding: 1.25rem 1.5rem !important;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--bordure-claire);
+}
+
+/* Espacement entre filtres et lignes du tableau */
+.filtres-zone + .tableau-conteneur,
+.filtres-zone + table {
+    margin-top: 0;
+}
+
+/* Ligne d'en-tete du tableau plus aeree */
+.tableau thead th {
+    padding: 1rem 1.25rem !important;
+}
+
+.tableau tbody td {
+    padding: 0.85rem 1.25rem !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BANDEAU ACTIONS - Aeration titre / boutons filtres
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Le bandeau-actions a un layout flex : titre a gauche, boutons a droite */
+.bandeau-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;  /* ← espace horizontal entre titre et boutons */
+    padding: 0.5rem 0;
+    flex-wrap: wrap;  /* responsive */
+}
+
+/* Le titre + sous-titre a gauche */
+.bandeau-actions > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.bandeau-actions h2 {
+    margin: 0 0 0.3rem 0;
+    line-height: 1.2;
+}
+
+.bandeau-actions .bandeau-sous-titre {
+    margin: 0;
+    color: var(--texte-secondaire);
+    font-size: 0.9rem;
+}
+
+/* Les boutons filtres a droite — bien espaces */
+.bandeau-actions > div:last-child {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+/* Sur petits ecrans, empiler verticalement */
+@media (max-width: 768px) {
+    .bandeau-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .bandeau-actions > div:last-child {
+        justify-content: flex-start;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AERATION GENERALE - Zones de filtres / recherche
+   Applicable sur TOUTES les pages liste (articles, fournisseurs,
+   FEB, BC, paiements, alertes IoT, notifications, etc.)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Zone de filtres (.filtres-zone) ─────────────────────── */
+.filtres-zone {
+    padding: 1.5rem !important;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid var(--bordure-claire);
+    background-color: var(--fond-secondaire);
+}
+
+/* ─── Formulaire de filtres ─────────────────────────────── */
+.formulaire-filtres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.formulaire-filtres > * {
+    flex: 0 1 auto;
+}
+
+/* ─── Champ recherche integre ───────────────────────────── */
+.champ-recherche-integre {
+    flex: 1 1 280px;
+    min-width: 240px;
+    position: relative;
+}
+
+.champ-recherche-integre input.champ-formulaire {
+    width: 100%;
+    padding-right: 2.5rem;  /* place pour le bouton fleche */
+}
+
+/* ─── Select inline ────────────────────────────────────── */
+.formulaire-filtres .champ-select,
+.formulaire-filtres select.champ-formulaire {
+    min-width: 180px;
+    flex: 0 0 auto;
+}
+
+/* ─── Espace ENTRE zone filtres et tableau ──────────────── */
+.filtres-zone + .tableau-conteneur,
+.filtres-zone + table.tableau {
+    padding-top: 0.5rem;
+}
+
+/* ─── Espace en HAUT du tableau (pour les pages sans filtres) ─── */
+.carte > .tableau-conteneur:first-child {
+    padding-top: 1rem;
+}
+
+.tableau-conteneur {
+    padding: 0.5rem;
+}
+
+/* ─── Etat vide (aere) ─────────────────────────────────── */
+.etat-vide {
+    padding: 3rem 1.5rem !important;
+    text-align: center;
+}
+
+.etat-vide-icone {
+    width: 64px;
+    height: 64px;
+    color: var(--texte-tertiaire);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.etat-vide h3 {
+    margin: 0.5rem 0;
+    color: var(--texte-principal);
+}
+
+.etat-vide p {
+    color: var(--texte-secondaire);
+    margin: 0;
+}
+
+/* ─── Pagination (aere du tableau) ─────────────────────── */
+.pagination {
+    padding: 1.5rem !important;
+    border-top: 1px solid var(--bordure-claire);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    color: var(--texte-secondaire);
+    font-size: 0.9rem;
+}
+
+/* ─── Mode responsive ─────────────────────────────────── */
+@media (max-width: 768px) {
+    .formulaire-filtres {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .formulaire-filtres > * {
+        width: 100%;
+    }
+
+    .champ-recherche-integre,
+    .formulaire-filtres .champ-select {
+        min-width: 100%;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AERATION FILTRES - Couverture exhaustive (toutes les pages)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Tout formulaire de filtres directement dans une carte ─── */
+.carte > form,
+.carte > .formulaire-filtres,
+.carte > .filtres,
+.carte > div:has(> form.formulaire-filtres),
+.carte > div:has(> .champ-recherche-integre) {
+    padding: 1.5rem !important;
+    border-bottom: 1px solid var(--bordure-claire);
+    background-color: var(--fond-secondaire);
+    margin: 0 !important;
+}
+
+/* ─── Tableau dans une carte : padding au-dessus ─────────── */
+.carte > .tableau-conteneur,
+.carte > table {
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+}
+
+/* ─── Articles catalogue (grille e-commerce) ─────────────── */
+.carte > .grille-articles,
+.grille-articles {
+    padding: 1.5rem !important;
+    gap: 1.25rem;
+    margin-top: 0 !important;
+}
+
+/* ─── Bandeau filtres avec recherche (catalogue articles) ── */
+.bandeau-filtres,
+.barre-recherche,
+.zone-recherche,
+.recherche-bandeau {
+    padding: 1.25rem 1.5rem !important;
+    background-color: var(--fond-secondaire);
+    border-bottom: 1px solid var(--bordure-claire);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0 !important;
+}
+
+/* ─── Espace ENTRE bandeau filtres et grille articles ──── */
+.bandeau-filtres + .grille-articles,
+.barre-recherche + .grille-articles,
+.zone-recherche + .grille-articles {
+    padding-top: 1.5rem !important;
+}
+
+/* ─── Force aeration apres TOUT formulaire dans une carte ─── */
+.carte form + .grille-articles,
+.carte form + .tableau-conteneur,
+.carte form + table {
+    padding-top: 1.5rem !important;
+}
+
+/* ─── Aeration interne formulaires de filtres simples ──── */
+.carte > form[method="get"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    padding: 1.5rem !important;
+}
+
+/* Au cas ou les filtres sont en haut sans wrapper ───────── */
+.carte > .champ-recherche-integre,
+.carte > select.champ-formulaire {
+    margin: 1.5rem !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AERATION SPECIFIQUE - Page catalogue articles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Espace entre la carte contenant les filtres et la grille articles */
+.page-liste > .carte + .grille-articles {
+    margin-top: 1.5rem !important;
+}
+
+/* Si la grille articles n'est pas dans une carte, lui donner du padding */
+.page-liste > .grille-articles {
+    padding: 0;
+    gap: 1.5rem !important;
+}
+
+/* Aeration generale apres une carte */
+.page-liste > .carte {
+    margin-bottom: 0 !important;
+}
+
+.page-liste > .carte + * {
+    margin-top: 1.5rem !important;
+}
+
+/* Pagination apres la grille articles */
+.page-liste > .grille-articles + .pagination {
+    margin-top: 1.5rem !important;
+    padding: 1.5rem !important;
+    background-color: var(--fond-secondaire);
+    border-radius: var(--rayon-md);
+    border: 1px solid var(--bordure-claire);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR RESPONSIVE - Menu hamburger
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Bouton burger (cache par defaut sur desktop) ─────── */
+.btn-burger {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: var(--principal, #2563EB);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.15s, background 0.15s;
+}
+
+.btn-burger:hover {
+    transform: scale(1.05);
+    background: var(--principal-fonce, #1D4ED8);
+}
+
+.btn-burger i {
+    width: 22px;
+    height: 22px;
+}
+
+/* ─── Overlay sombre (cache par defaut) ─────────────────── */
+.overlay-sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.overlay-sidebar.overlay-actif {
+    display: block;
+    opacity: 1;
+}
+
+/* ─── Sur tablettes et mobiles ─────────────────────────── */
+@media (max-width: 1024px) {
+
+    /* Affiche le bouton burger */
+    .btn-burger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Sidebar : cachee par defaut (hors ecran) */
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 999;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+    }
+
+    /* Sidebar ouverte */
+    .sidebar.sidebar-ouverte {
+        transform: translateX(0) !important;
+    }
+
+    /* Contenu principal : prend toute la largeur */
+    .contenu-zone {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 4rem !important;  /* espace pour le bouton burger */
+    }
+
+    /* App-layout : devient single column */
+    .app-layout {
+        display: block !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Header app : ajuste padding pour le burger */
+    .header-app {
+        padding-left: 4rem !important;
+    }
+}
+
+/* ─── Sur tres petits ecrans ─────────────────────────── */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 85%;
+        max-width: 320px;
+    }
+
+    .header-app {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .header-droite {
+        justify-content: space-between;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR RESPONSIVE - VERSION FORCEE
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Sur tablettes et mobiles : force tout ──────────── */
+@media (max-width: 1024px) {
+
+    /* Sidebar : cachee a gauche par defaut */
+    body .app-layout .sidebar,
+    body .sidebar#sidebar-principale,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s ease !important;
+        z-index: 9999 !important;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2) !important;
+        overflow-y: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Sidebar OUVERTE : visible */
+    body .app-layout .sidebar.sidebar-ouverte,
+    body .sidebar#sidebar-principale.sidebar-ouverte,
+    aside.sidebar.sidebar-ouverte {
+        transform: translateX(0) !important;
+    }
+
+    /* Contenu principal prend toute la largeur */
+    body .app-layout .contenu-zone,
+    body .contenu-zone {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 4.5rem !important;
+    }
+
+    /* Layout devient single column */
+    body .app-layout {
+        display: block !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Header reste visible avec espace pour burger */
+    body .header-app {
+        padding-left: 4.5rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* Bouton burger TOUJOURS visible */
+    body .btn-burger {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: fixed !important;
+        top: 0.75rem !important;
+        left: 0.75rem !important;
+        z-index: 10000 !important;
+        background: #2563EB !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.6rem 0.75rem !important;
+        cursor: pointer !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Overlay actif */
+    body .overlay-sidebar.overlay-actif {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        z-index: 9998 !important;
+        opacity: 1 !important;
+    }
+}
+
+/* ─── Sur desktop : tout normal, pas de burger ─────── */
+@media (min-width: 1025px) {
+    body .btn-burger {
+        display: none !important;
+    }
+
+    body .overlay-sidebar {
+        display: none !important;
+    }
+
+    /* Sidebar reste sticky / normale */
+    body .app-layout .sidebar {
+        position: sticky !important;
+        transform: none !important;
+    }
+}
+
+/* ─── Sur tres petits ecrans ───────────────────────── */
+@media (max-width: 480px) {
+    body .app-layout .sidebar {
+        width: 85% !important;
+        max-width: 320px !important;
+    }
+
+    body .header-app {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    body .header-droite {
+        justify-content: space-between !important;
+    }
+}

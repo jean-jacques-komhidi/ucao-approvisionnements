@@ -1,0 +1,149 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Gestion de stock - UCAO{% endblock %}
+{% block page_titre %}📦 Gestion de stock{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="grille-kpi">
+        <a href="?filtre=tous" class="kpi-carte kpi-carte-clickable">
+            <div class="kpi-icone-wrapper kpi-bleu">
+                <i data-lucide="package" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Articles geres</p>
+                <p class="kpi-valeur">{{ kpi.total_geres }}</p>
+            </div>
+        </a>
+
+        <a href="?filtre=rupture" class="kpi-carte kpi-carte-clickable">
+            <div class="kpi-icone-wrapper kpi-jaune" style="background-color: rgba(220, 38, 38, 0.15);">
+                <i data-lucide="alert-circle" class="kpi-icone" style="color: #DC2626;"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">En rupture</p>
+                <p class="kpi-valeur" style="color: #DC2626;">{{ kpi.nb_rupture }}</p>
+                <p class="kpi-detail">Stock = 0</p>
+            </div>
+        </a>
+
+        <a href="?filtre=sous_seuil" class="kpi-carte kpi-carte-clickable">
+            <div class="kpi-icone-wrapper kpi-jaune">
+                <i data-lucide="alert-triangle" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Sous seuil</p>
+                <p class="kpi-valeur" style="color: #D97706;">{{ kpi.nb_sous_seuil }}</p>
+                <p class="kpi-detail">A reapprovisionner</p>
+            </div>
+        </a>
+
+        <a href="?filtre=ok" class="kpi-carte kpi-carte-clickable">
+            <div class="kpi-icone-wrapper kpi-vert">
+                <i data-lucide="check-circle-2" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Stock OK</p>
+                <p class="kpi-valeur" style="color: #059669;">{{ kpi.nb_ok }}</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>
+                {% if filtre == 'rupture' %}Articles en rupture
+                {% elif filtre == 'sous_seuil' %}Articles sous seuil
+                {% elif filtre == 'ok' %}Articles avec stock OK
+                {% else %}Tous les articles geres{% endif %}
+            </h2>
+            <p class="bandeau-sous-titre">{{ articles|length }} article(s)</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="?filtre=tous" class="btn btn-secondaire {% if filtre == 'tous' %}btn-actif{% endif %}">Tous</a>
+            <a href="?filtre=rupture" class="btn btn-secondaire {% if filtre == 'rupture' %}btn-actif{% endif %}">Rupture</a>
+            <a href="?filtre=sous_seuil" class="btn btn-secondaire {% if filtre == 'sous_seuil' %}btn-actif{% endif %}">Sous seuil</a>
+            <a href="?filtre=ok" class="btn btn-secondaire {% if filtre == 'ok' %}btn-actif{% endif %}">OK</a>
+        </div>
+    </div>
+
+    <div class="carte">
+        {% if articles %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th>Article</th>
+                            <th>Unite</th>
+                            <th>Stock</th>
+                            <th>Seuil</th>
+                            <th>Qte a commander</th>
+                            <th>Statut</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for art in articles %}
+                            <tr>
+                                <td><strong>{{ art.designation }}</strong></td>
+                                <td>{{ art.unite }}</td>
+                                <td>
+                                    <strong style="font-size: 1.1rem; color: {% if art.est_en_rupture %}#DC2626{% elif art.est_sous_seuil %}#D97706{% else %}#059669{% endif %};">
+                                        {{ art.quantite_stock }}
+                                    </strong>
+                                </td>
+                                <td>{{ art.seuil_alerte }}</td>
+                                <td>{{ art.quantite_a_commander }}</td>
+                                <td>
+                                    {% if art.est_en_rupture %}
+                                        <span class="badge badge-error">⚠ RUPTURE</span>
+                                    {% elif art.est_sous_seuil %}
+                                        <span class="badge badge-warning">⚠ Sous seuil</span>
+                                    {% else %}
+                                        <span class="badge badge-success">✓ OK</span>
+                                    {% endif %}
+                                </td>
+                                <td class="col-actions">
+                                    {% if request.user.role in ['resp_appro', 'admin'] %}
+                                        <details>
+                                            <summary class="btn btn-secondaire btn-petit">
+                                                <i data-lucide="edit" class="btn-icone"></i> Ajuster
+                                            </summary>
+                                            <form method="post" action="{{ url('article_ajuster_stock', kwargs={'pk': art.pk}) }}" style="margin-top: 0.5rem; min-width: 240px;">
+                                                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                                <div class="champ-groupe">
+                                                    <label for="delta-{{ art.pk }}">Delta (+ ou -)</label>
+                                                    <input type="number" name="delta" id="delta-{{ art.pk }}"
+                                                           class="champ-formulaire" required
+                                                           placeholder="Ex: +50 ou -10">
+                                                </div>
+                                                <div class="champ-groupe">
+                                                    <label for="motif-{{ art.pk }}">Motif</label>
+                                                    <input type="text" name="motif" id="motif-{{ art.pk }}"
+                                                           class="champ-formulaire"
+                                                           placeholder="Reception, sortie usage...">
+                                                </div>
+                                                <button type="submit" class="btn btn-principal btn-petit" style="width: 100%;">
+                                                    Confirmer
+                                                </button>
+                                            </form>
+                                        </details>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="package" class="etat-vide-icone"></i>
+                <h3>Aucun article</h3>
+                <p>Activer la gestion stock sur les articles concernes via l'admin.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

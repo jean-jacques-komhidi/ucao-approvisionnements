@@ -1,0 +1,55 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Zones geographiques - UCAO{% endblock %}
+{% block page_titre %}🗺️ Zones geographiques{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>Zones configurees</h2>
+            <p class="bandeau-sous-titre">{{ zones|length }} zone(s)</p>
+        </div>
+    </div>
+
+    <div class="iot-zones-grille-detail">
+        {% for z in zones %}
+            <div class="iot-zone-detaillee {% if not z.est_zone_autorisee %}iot-zone-non-autorisee{% endif %}">
+                <div class="iot-zone-detaillee-entete">
+                    <h3>
+                        {% if z.est_zone_autorisee %}
+                            ✓
+                        {% else %}
+                            ⚠
+                        {% endif %}
+                        {{ z.nom }}
+                    </h3>
+                    <span class="badge badge-{% if z.est_zone_autorisee %}success{% else %}error{% endif %} badge-petit">
+                        {% if z.est_zone_autorisee %}Autorisee{% else %}NON autorisee{% endif %}
+                    </span>
+                </div>
+
+                <div class="iot-zone-detaillee-corps">
+                    <p><strong>Batiment :</strong> {{ z.batiment }}</p>
+                    {% if z.etage %}<p><strong>Etage :</strong> {{ z.etage }}</p>{% endif %}
+                    <p><strong>Type :</strong> {{ z.get_type_zone_display() }}</p>
+                    <p><strong>Equipements presents :</strong> {{ z.nb_equipements }}</p>
+                    {% if z.description %}
+                        <p style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--bordure-claire); font-style: italic; color: var(--texte-secondaire);">
+                            {{ z.description }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="map-off" class="etat-vide-icone"></i>
+                <h3>Aucune zone</h3>
+                <p>Configurer des zones via l'admin Django.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

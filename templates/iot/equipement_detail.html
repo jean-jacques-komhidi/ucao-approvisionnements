@@ -1,0 +1,163 @@
+{% extends "base_app.html" %}
+
+{% block titre %}{{ equipement.designation }} - UCAO{% endblock %}
+{% block page_titre %}{{ equipement.designation }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('iot_equipements_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux equipements
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section feb-entete-detail">
+            <div>
+                <h3>{{ equipement.designation }}</h3>
+                <p>Tag RFID : <code>{{ equipement.rfid_tag }}</code></p>
+            </div>
+            <span class="badge badge-{{ equipement.couleur_statut }} badge-grand">
+                {{ equipement.get_statut_display() }}
+            </span>
+        </div>
+
+        <div class="formulaire feb-detail-grille">
+            <div class="detail-bloc">
+                <p class="detail-label">N° Serie</p>
+                <p class="detail-valeur">{{ equipement.numero_serie }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Valeur</p>
+                <p class="detail-valeur">{{ equipement.valeur_acquisition|fcfa }}</p>
+            </div>
+            {% if equipement.fournisseur %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Fournisseur</p>
+                    <p class="detail-valeur">{{ equipement.fournisseur.nom }}</p>
+                </div>
+            {% endif %}
+            <div class="detail-bloc">
+                <p class="detail-label">Zone actuelle</p>
+                <p class="detail-valeur">
+                    {% if equipement.zone_actuelle %}
+                        📍 {{ equipement.zone_actuelle.nom }}
+                    {% else %}
+                        Non detecte
+                    {% endif %}
+                </p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Suivi IoT</p>
+                <p class="detail-valeur">
+                    {% if equipement.est_suivi_iot %}
+                        <span style="color: #10B981;">✓ Actif</span>
+                    {% else %}
+                        <span style="color: #6B7280;">Desactive</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">Derniere detection</p>
+                <p class="detail-valeur">
+                    {% if equipement.derniere_detection %}
+                        {{ equipement.derniere_detection|date_fr }}
+                    {% else %}
+                        Jamais
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {# ─── HISTORIQUE LOCALISATIONS ──────────────────── #}
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>Historique des localisations</h3>
+            <p>50 derniers signaux capteur</p>
+        </div>
+
+        {% if historique %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th>Date / Heure</th>
+                            <th>Zone detectee</th>
+                            <th>Signal</th>
+                            <th>Capteur</th>
+                            <th>Etat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loc in historique %}
+                            <tr>
+                                <td>{{ loc.timestamp|date_fr }}</td>
+                                <td>{{ loc.zone.nom }}</td>
+                                <td>
+                                    <span style="font-family: monospace;">
+                                        {{ loc.signal_force }}%
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if loc.capteur_id %}
+                                        <code style="font-size: 0.75rem;">{{ loc.capteur_id }}</code>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if loc.est_alerte %}
+                                        <span class="badge badge-error badge-petit">⚠ Alerte</span>
+                                    {% else %}
+                                        <span class="badge badge-success badge-petit">OK</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="map-pin-off" class="etat-vide-icone"></i>
+                <p>Aucun signal capteur recu pour cet equipement.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {# ─── ALERTES ───────────────────────────────────── #}
+    {% if alertes %}
+        <div class="carte">
+            <div class="carte-entete-section">
+                <h3>Alertes</h3>
+                <p>{{ alertes|length }} alerte(s)</p>
+            </div>
+
+            <div class="liste-notifications">
+                {% for a in alertes %}
+                    <div class="notification-item {% if not a.est_traitee %}notification-non-lue{% endif %}">
+                        <div class="notification-icone-wrapper notification-{{ a.couleur_niveau }}">
+                            <i data-lucide="alert-triangle" class="notification-icone"></i>
+                        </div>
+                        <div class="notification-corps">
+                            <div class="notification-entete">
+                                <h4 class="notification-sujet">{{ a.get_type_alerte_display() }}</h4>
+                                <span class="notification-date">{{ a.timestamp|date_fr }}</span>
+                            </div>
+                            <p class="notification-message">{{ a.message }}</p>
+                            <div class="notification-meta">
+                                {% if a.est_traitee %}
+                                    <span class="badge badge-success badge-petit">✓ Traitee par {{ a.traite_par.nom_complet }}</span>
+                                {% else %}
+                                    <span class="badge badge-error badge-petit">⚠ Active</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

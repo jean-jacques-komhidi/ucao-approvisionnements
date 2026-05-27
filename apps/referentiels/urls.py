@@ -11,6 +11,10 @@ urlpatterns = [
     path("articles/<int:pk>/modifier/", views.article_modifier, name="article_modifier"),
     path("articles/<int:pk>/supprimer/", views.article_supprimer, name="article_supprimer"),
 
+    # ─── GESTION STOCK ──────────────────────────────────
+    path("referentiels/stock/", views.articles_stock, name="articles_stock"),
+    path("referentiels/stock/<int:pk>/ajuster/", views.article_ajuster_stock, name="article_ajuster_stock"),
+
     # ─── Services exterieurs ─────────────────────────────
     path("services/", views.liste_services, name="services_liste"),
     path("services/nouveau/", views.service_creer, name="service_creer"),

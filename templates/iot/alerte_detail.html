@@ -1,0 +1,110 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Alerte IoT #{{ alerte.pk }} - UCAO{% endblock %}
+{% block page_titre %}🚨 Alerte IoT #{{ alerte.pk }}{% endblock %}
+
+{% block contenu %}
+<div class="page-formulaire">
+    <a href="{{ url('iot_alertes_liste') }}" class="lien-retour">
+        <i data-lucide="arrow-left" class="btn-icone"></i>
+        Retour aux alertes
+    </a>
+
+    <div class="carte">
+        <div class="carte-entete-section feb-entete-detail">
+            <div>
+                <h3>{{ alerte.get_type_alerte_display() }}</h3>
+                <p>Detectee le {{ alerte.timestamp|date_fr }}</p>
+            </div>
+            {% if alerte.est_traitee %}
+                <span class="badge badge-success badge-grand">✓ Traitee</span>
+            {% else %}
+                <span class="badge badge-error badge-grand">⚠ Active</span>
+            {% endif %}
+        </div>
+
+        <div class="formulaire feb-detail-grille">
+            <div class="detail-bloc">
+                <p class="detail-label">Equipement</p>
+                <p class="detail-valeur">
+                    <a href="{{ url('iot_equipement_detail', kwargs={'pk': alerte.equipement.pk}) }}">
+                        {{ alerte.equipement.designation }}
+                    </a>
+                </p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">N° serie</p>
+                <p class="detail-valeur">{{ alerte.equipement.numero_serie }}</p>
+            </div>
+            <div class="detail-bloc">
+                <p class="detail-label">RFID Tag</p>
+                <p class="detail-valeur"><code>{{ alerte.equipement.rfid_tag }}</code></p>
+            </div>
+            {% if alerte.zone_actuelle %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Zone detectee</p>
+                    <p class="detail-valeur" style="color: #DC2626;">
+                        ⚠ {{ alerte.zone_actuelle.nom }}
+                    </p>
+                </div>
+            {% endif %}
+            {% if alerte.zone_quittee %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Zone quittee</p>
+                    <p class="detail-valeur">{{ alerte.zone_quittee.nom }}</p>
+                </div>
+            {% endif %}
+            <div class="detail-bloc detail-bloc-large">
+                <p class="detail-label">Message</p>
+                <p class="detail-valeur">{{ alerte.message }}</p>
+            </div>
+
+            {% if alerte.est_traitee %}
+                <div class="detail-bloc">
+                    <p class="detail-label">Traitee par</p>
+                    <p class="detail-valeur">{{ alerte.traite_par.nom_complet }}</p>
+                </div>
+                <div class="detail-bloc">
+                    <p class="detail-label">Date traitement</p>
+                    <p class="detail-valeur">{{ alerte.date_traitement|date_fr }}</p>
+                </div>
+                {% if alerte.commentaire_traitement %}
+                    <div class="detail-bloc detail-bloc-large">
+                        <p class="detail-label">Commentaire</p>
+                        <p class="detail-valeur" style="font-style: italic;">
+                            💬 {{ alerte.commentaire_traitement }}
+                        </p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    {# ─── ACTIONS ─────────────────────────────────── #}
+    {% if not alerte.est_traitee %}
+        <div class="carte carte-actions">
+            <div class="carte-entete-section">
+                <h3>Traiter l'alerte</h3>
+                <p>Confirmer la prise en charge</p>
+            </div>
+            <div class="formulaire">
+                <form method="post" action="{{ url('iot_alerte_traiter', kwargs={'pk': alerte.pk}) }}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+                    <div class="champ-groupe">
+                        <label for="commentaire">Commentaire (optionnel)</label>
+                        <textarea name="commentaire" id="commentaire" rows="3" class="champ-formulaire"
+                                  placeholder="Ex : Equipement recupere, replace en zone autorisee"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-principal">
+                        <i data-lucide="check" class="btn-icone"></i>
+                        Confirmer le traitement
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

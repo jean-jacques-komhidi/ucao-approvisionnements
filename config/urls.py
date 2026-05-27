@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin-django/", admin.site.urls),
 
     # A decommenter au fur et a mesure du developpement :
+    path("", include("apps.extensions.iot.urls")),
     path("", include("apps.notifications.urls")),
     path("", include("apps.comptes.urls")),
     path("referentiels/", include("apps.referentiels.urls")),

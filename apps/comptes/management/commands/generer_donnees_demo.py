@@ -44,10 +44,9 @@ class Command(BaseCommand):
             fournisseurs = self._creer_fournisseurs(utilisateurs)
             self._creer_feb_bc_paiements(utilisateurs, articles, services, fournisseurs)
 
-        self.stdout.write(self.style.SUCCESS("\n" + "=" * 60))
-        self.stdout.write(self.style.SUCCESS("✓ DONNEES DEMO GENEREES AVEC SUCCES !"))
-        self.stdout.write(self.style.SUCCESS("=" * 60))
-        self._afficher_recap(utilisateurs)
+           # IoT  ← CES 2 LIGNES DOIVENT ETRE LA
+            zones = self._creer_zones_iot()
+            self._creer_equipements_iot(zones, fournisseurs)
 
     # ═══════════════════════════════════════════════════════════════
     # RESET
@@ -249,6 +248,12 @@ class Command(BaseCommand):
 
         articles_crees = []
         for data in articles_data:
+            # Active gestion stock pour les consommables (pas pour materiel)
+            gere_stock = data["nature"].lower() in ("consommable", "fournitures", "alimentation")
+            stock_initial = random.randint(0, 100) if gere_stock else 0
+            seuil = random.choice([5, 10, 15, 20]) if gere_stock else 0
+            qte_a_commander = random.choice([20, 30, 50]) if gere_stock else 0
+
             article, created = Article.objects.get_or_create(
                 designation=data["designation"],
                 defaults={
@@ -257,6 +262,10 @@ class Command(BaseCommand):
                     "description": f"Article : {data['designation']}",
                     "est_actif": True,
                     "cree_par": cathy,
+                    "gestion_stock_active": gere_stock,
+                    "quantite_stock": stock_initial,
+                    "seuil_alerte": seuil,
+                    "quantite_a_commander": qte_a_commander,
                 },
             )
             if created:
@@ -641,6 +650,110 @@ class Command(BaseCommand):
 
         # Execute (calcule le statut + solde)
         executer_paiement(paiement)
+
+
+    # ═══════════════════════════════════════════════════════════════
+    # IoT — ZONES + EQUIPEMENTS
+    # ═══════════════════════════════════════════════════════════════
+    def _creer_zones_iot(self):
+        from apps.extensions.iot.models import TypeZone, ZoneGeographique
+
+        zones_data = [
+            # Batiment Principal
+            {"nom": "Salle Info A", "batiment": "Batiment Principal", "etage": "RDC",
+             "type_zone": TypeZone.SALLE_INFORMATIQUE, "est_zone_autorisee": True},
+            {"nom": "Salle Info B", "batiment": "Batiment Principal", "etage": "RDC",
+             "type_zone": TypeZone.SALLE_INFORMATIQUE, "est_zone_autorisee": True},
+            {"nom": "Bureau Reception", "batiment": "Batiment Principal", "etage": "RDC",
+             "type_zone": TypeZone.BUREAU, "est_zone_autorisee": True},
+            {"nom": "Salle Reunion 1", "batiment": "Batiment Principal", "etage": "1er",
+             "type_zone": TypeZone.SALLE_REUNION, "est_zone_autorisee": True},
+            {"nom": "Bibliotheque", "batiment": "Batiment Principal", "etage": "1er",
+             "type_zone": TypeZone.BUREAU, "est_zone_autorisee": True},
+
+            # Batiment Direction
+            {"nom": "Bureau DG", "batiment": "Batiment Direction", "etage": "2eme",
+             "type_zone": TypeZone.BUREAU, "est_zone_autorisee": True},
+            {"nom": "Bureau DFC", "batiment": "Batiment Direction", "etage": "2eme",
+             "type_zone": TypeZone.BUREAU, "est_zone_autorisee": True},
+            {"nom": "Salle Conseil", "batiment": "Batiment Direction", "etage": "2eme",
+             "type_zone": TypeZone.SECURISE, "est_zone_autorisee": True},
+
+            # Entrepot
+            {"nom": "Entrepot Stock", "batiment": "Annexe", "etage": "RDC",
+             "type_zone": TypeZone.ENTREPOT, "est_zone_autorisee": True},
+
+            # Zones NON autorisees
+            {"nom": "Parking exterieur", "batiment": "Exterieur", "etage": "—",
+             "type_zone": TypeZone.EXTERIEUR, "est_zone_autorisee": False,
+             "description": "Aucun equipement ne doit sortir ici"},
+            {"nom": "Sortie principale", "batiment": "Exterieur", "etage": "—",
+             "type_zone": TypeZone.EXTERIEUR, "est_zone_autorisee": False,
+             "description": "Zone de detection sortie batiment"},
+        ]
+
+        zones = []
+        for data in zones_data:
+            zone, created = ZoneGeographique.objects.get_or_create(
+                nom=data["nom"],
+                defaults=data,
+            )
+            if created:
+                zones.append(zone)
+
+        self.stdout.write(f"  ✓ {len(zones)} zones IoT creees")
+        return ZoneGeographique.objects.filter(est_active=True)
+
+    def _creer_equipements_iot(self, zones, fournisseurs):
+        from apps.extensions.iot.models import Equipement, StatutEquipement
+
+        zones_autorisees = [z for z in zones if z.est_zone_autorisee]
+        fournisseurs_list = list(fournisseurs)
+
+        equipements_data = [
+            {"designation": "Ordinateur portable Dell Latitude 5520 #001", "valeur": 850000},
+            {"designation": "Ordinateur portable Dell Latitude 5520 #002", "valeur": 850000},
+            {"designation": "Ordinateur portable HP ProBook 450 G9 #001", "valeur": 750000},
+            {"designation": "Imprimante HP LaserJet Pro M404 #001", "valeur": 350000},
+            {"designation": "Imprimante HP LaserJet Pro M404 #002", "valeur": 350000},
+            {"designation": "Videoprojecteur Epson EB-X51 #001", "valeur": 450000},
+            {"designation": "Videoprojecteur Epson EB-X51 #002", "valeur": 450000},
+            {"designation": "Ecran Samsung 24 pouces #001", "valeur": 180000},
+            {"designation": "Ecran Samsung 24 pouces #002", "valeur": 180000},
+            {"designation": "Switch Cisco 24 ports #001", "valeur": 320000},
+            {"designation": "Onduleur APC 1000VA #001", "valeur": 280000},
+            {"designation": "Onduleur APC 1000VA #002", "valeur": 280000},
+            {"designation": "Tablette Samsung Galaxy Tab A8 #001", "valeur": 220000},
+            {"designation": "Imprimante 3D Creality Ender 3 #001", "valeur": 380000},
+            {"designation": "Routeur WiFi TP-Link AC1750 #001", "valeur": 95000},
+            {"designation": "Smart TV Samsung 55 pouces #001", "valeur": 580000},
+            {"designation": "Camera securite IP Hikvision #001", "valeur": 150000},
+            {"designation": "Camera securite IP Hikvision #002", "valeur": 150000},
+            {"designation": "Disque dur externe WD 4TB #001", "valeur": 95000},
+            {"designation": "Microphone professionnel Shure #001", "valeur": 220000},
+        ]
+
+        equipements_crees = []
+        for i, data in enumerate(equipements_data, 1):
+            from decimal import Decimal as D
+
+            eq, created = Equipement.objects.get_or_create(
+                numero_serie=f"SN-2026-{i:04d}",
+                defaults={
+                    "designation": data["designation"],
+                    "rfid_tag": f"RFID-UCAO-{i:06d}",
+                    "valeur_acquisition": D(str(data["valeur"])),
+                    "fournisseur": random.choice(fournisseurs_list),
+                    "zone_actuelle": random.choice(zones_autorisees),
+                    "statut": StatutEquipement.EN_SERVICE,
+                    "est_suivi_iot": True,
+                },
+            )
+            if created:
+                equipements_crees.append(eq)
+
+        self.stdout.write(f"  ✓ {len(equipements_crees)} equipements IoT crees")
+        return Equipement.objects.all()
 
     # ═══════════════════════════════════════════════════════════════
     # RECAP

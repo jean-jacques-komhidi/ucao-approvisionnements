@@ -1,0 +1,108 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Equipements IoT - UCAO{% endblock %}
+{% block page_titre %}📡 Equipements IoT{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>Equipements connectes</h2>
+            <p class="bandeau-sous-titre">{{ equipements|length }} equipement(s)</p>
+        </div>
+        <a href="{{ url('iot_dashboard') }}" class="btn btn-secondaire">
+            <i data-lucide="arrow-left" class="btn-icone"></i>
+            Dashboard IoT
+        </a>
+    </div>
+
+    <div class="carte">
+        <div class="filtres-zone">
+            <form method="get" class="formulaire-filtres">
+                <div class="champ-recherche-integre">
+                    <i data-lucide="search" class="recherche-icone"></i>
+                    <input type="text" name="q" value="{{ recherche }}"
+                           placeholder="Designation, S/N, RFID..." class="champ-formulaire">
+                    <button type="submit" class="btn-recherche-integre">
+                        <i data-lucide="arrow-right" class="btn-icone"></i>
+                    </button>
+                </div>
+                <select name="statut" class="champ-formulaire champ-select" onchange="this.form.submit()">
+                    <option value="">Tous statuts</option>
+                    {% for valeur, label in statuts %}
+                        <option value="{{ valeur }}" {% if statut_filtre == valeur %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if recherche or statut_filtre %}
+                    <a href="{{ url('iot_equipements_liste') }}" class="btn btn-secondaire">
+                        <i data-lucide="x" class="btn-icone"></i> Reset
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if equipements %}
+            <div class="tableau-conteneur">
+                <table class="tableau">
+                    <thead>
+                        <tr>
+                            <th>Designation</th>
+                            <th>S/N</th>
+                            <th>Tag RFID</th>
+                            <th>Zone actuelle</th>
+                            <th>Statut</th>
+                            <th>Suivi</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eq in equipements %}
+                            <tr>
+                                <td><strong>{{ eq.designation }}</strong></td>
+                                <td>{{ eq.numero_serie }}</td>
+                                <td><code style="font-size: 0.8rem;">{{ eq.rfid_tag }}</code></td>
+                                <td>
+                                    {% if eq.zone_actuelle %}
+                                        {{ eq.zone_actuelle.nom }}
+                                    {% else %}
+                                        <span style="color: var(--texte-tertiaire);">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ eq.couleur_statut }}">
+                                        {{ eq.get_statut_display() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if eq.est_suivi_iot %}
+                                        <span class="badge badge-success badge-petit">
+                                            <i data-lucide="radio" style="width: 12px; height: 12px;"></i> Actif
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-neutre badge-petit">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td class="col-actions">
+                                    <a href="{{ url('iot_equipement_detail', kwargs={'pk': eq.pk}) }}" class="btn btn-secondaire btn-petit">
+                                        <i data-lucide="eye" class="btn-icone"></i> Voir
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="package" class="etat-vide-icone"></i>
+                <h3>Aucun equipement</h3>
+                <p>Aucun equipement IoT enregistre.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

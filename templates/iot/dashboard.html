@@ -1,0 +1,177 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Dashboard IoT - UCAO{% endblock %}
+{% block page_titre %}🛰️ Dashboard IoT{% endblock %}
+
+{% block contenu %}
+<div class="page-dashboard">
+
+    <div class="dashboard-bienvenue">
+        <div>
+            <h2>Suivi des equipements en temps reel</h2>
+            <p class="bandeau-sous-titre">
+                Capteurs RFID/BLE · Geofencing actif · {{ kpi.nb_equipements }} equipement(s) connecte(s)
+            </p>
+        </div>
+    </div>
+
+    {# ─── KPI ─────────────────────────────────────────── #}
+    <div class="grille-kpi">
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-bleu">
+                <i data-lucide="radio" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Equipements connectes</p>
+                <p class="kpi-valeur">{{ kpi.nb_equipements }}</p>
+                <p class="kpi-detail">Suivis en temps reel</p>
+            </div>
+        </div>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-vert">
+                <i data-lucide="map-pin" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Zones autorisees</p>
+                <p class="kpi-valeur">{{ kpi.nb_zones_autorisees }}</p>
+                <p class="kpi-detail">Geofencing</p>
+            </div>
+        </div>
+
+        <a href="{{ url('iot_alertes_liste') }}" class="kpi-carte kpi-carte-clickable">
+            <div class="kpi-icone-wrapper kpi-jaune">
+                <i data-lucide="alert-triangle" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Alertes actives</p>
+                <p class="kpi-valeur">{{ kpi.alertes_actives }}</p>
+                <p class="kpi-detail">A traiter</p>
+            </div>
+        </a>
+
+        <div class="kpi-carte">
+            <div class="kpi-icone-wrapper kpi-violet">
+                <i data-lucide="package-x" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Sortis de zone</p>
+                <p class="kpi-valeur">{{ kpi.equipements_sortis }}</p>
+                <p class="kpi-detail">Hors zone autorisee</p>
+            </div>
+        </div>
+    </div>
+
+    {# ─── CARTE DES ZONES ─────────────────────────────── #}
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>Carte des zones</h3>
+            <p>Visualisation des zones autorisees et detectees</p>
+        </div>
+
+        <div class="iot-carte-zones">
+            <div id="iot-carte" style="height: 400px; border-radius: 8px;"></div>
+        </div>
+    </div>
+
+    {# ─── EQUIPEMENTS PAR ZONE ────────────────────────── #}
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>Repartition des equipements</h3>
+            <p>Top 10 zones par nombre d'equipements</p>
+        </div>
+
+        <div class="iot-zones-grille">
+            {% for z in par_zone %}
+                <div class="iot-zone-carte">
+                    <div class="iot-zone-corps">
+                        <p class="iot-zone-nom">{{ z.zone_actuelle__nom }}</p>
+                        <p class="iot-zone-count">{{ z.count }}</p>
+                        <p class="iot-zone-detail">equipement(s)</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="etat-vide">
+                    <i data-lucide="map" class="etat-vide-icone"></i>
+                    <p>Aucun equipement detecte pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ─── ALERTES RECENTES ────────────────────────────── #}
+    <div class="carte">
+        <div class="carte-entete-section">
+            <h3>Alertes recentes</h3>
+            <p>5 dernieres alertes IoT</p>
+        </div>
+
+        {% if alertes_recentes %}
+            <div class="dashboard-activites">
+                {% for a in alertes_recentes %}
+                    <a href="{{ url('iot_alertes_liste') }}" class="activite-item">
+                        <div class="activite-icone-wrapper activite-{{ a.couleur_niveau }}">
+                            <i data-lucide="alert-triangle" class="activite-icone"></i>
+                        </div>
+                        <div class="activite-corps">
+                            <div class="activite-entete">
+                                <strong>{{ a.equipement.designation }}</strong>
+                                <span class="activite-date">{{ a.timestamp|date_fr }}</span>
+                            </div>
+                            <p class="activite-description">
+                                {{ a.get_type_alerte_display() }} · {{ a.message|truncate(80) }}
+                            </p>
+                        </div>
+                        <div class="activite-meta">
+                            {% if a.est_traitee %}
+                                <span class="badge badge-success badge-petit">Traitee</span>
+                            {% else %}
+                                <span class="badge badge-error badge-petit">Active</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="check-circle-2" class="etat-vide-icone"></i>
+                <h3>Aucune alerte</h3>
+                <p>Tout est sous controle.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+    // Donnees zones depuis backend
+    const zonesData = {{ zones_carte|safe }};
+
+    // Affichage textuel des zones (pas besoin de Leaflet pour MVP)
+    const conteneurCarte = document.getElementById('iot-carte');
+    if (zonesData.length > 0) {
+        let html = '<div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">';
+        zonesData.forEach(z => {
+            const couleur = z.autorisee ? '#10B981' : '#DC2626';
+            const icone = z.autorisee ? '✓' : '⚠';
+            html += `
+                <div style="padding: 1rem; border: 2px solid ${couleur}; border-radius: 8px; background: ${couleur}15;">
+                    <p style="font-weight: 700; color: ${couleur}; margin: 0 0 0.5rem 0;">
+                        ${icone} ${z.nom}
+                    </p>
+                    <p style="font-size: 0.85rem; margin: 0 0 0.3rem 0; color: var(--texte-secondaire);">
+                        ${z.batiment} - ${z.etage}
+                    </p>
+                    <p style="font-size: 0.85rem; margin: 0; color: var(--texte-tertiaire);">
+                        ${z.type} · ${z.nb_equipements} equipement(s)
+                    </p>
+                </div>
+            `;
+        });
+        html += '</div>';
+        conteneurCarte.innerHTML = html;
+    } else {
+        conteneurCarte.innerHTML = '<p style="text-align: center; padding: 3rem; color: var(--texte-secondaire);">Aucune zone configuree</p>';
+    }
+</script>
+{% endblock %}

@@ -477,3 +477,90 @@ def devise_modifier(request, pk):
         "mode": "modifier",
         "objet": devise,
     })
+
+# ═══════════════════════════════════════════════════════════════════
+# GESTION DE STOCK
+# ═══════════════════════════════════════════════════════════════════
+@login_required
+def articles_stock(request):
+    """Page de gestion de stock des articles."""
+    from apps.comptes.models import RoleUtilisateur
+
+    if request.user.role not in (RoleUtilisateur.RESP_APPRO, RoleUtilisateur.ADMIN, RoleUtilisateur.CHEF_CCE, RoleUtilisateur.CHEF_SLMG):
+        messages.error(request, "Acces refuse.")
+        return redirect("tableau_de_bord")
+
+    from .models import Article
+
+    queryset = Article.objects.filter(est_actif=True, gestion_stock_active=True).order_by("designation")
+
+    # Filtres
+    filtre = request.GET.get("filtre", "tous")
+    if filtre == "rupture":
+        queryset = queryset.filter(quantite_stock__lte=0)
+    elif filtre == "sous_seuil":
+        from django.db.models import F
+        queryset = queryset.filter(quantite_stock__lte=F("seuil_alerte"), quantite_stock__gt=0)
+    elif filtre == "ok":
+        from django.db.models import F
+        queryset = queryset.filter(quantite_stock__gt=F("seuil_alerte"))
+
+    # KPI
+    total_geres = Article.objects.filter(est_actif=True, gestion_stock_active=True).count()
+    nb_rupture = Article.objects.filter(est_actif=True, gestion_stock_active=True, quantite_stock__lte=0).count()
+
+    from django.db.models import F
+    nb_sous_seuil = (
+        Article.objects.filter(est_actif=True, gestion_stock_active=True, quantite_stock__lte=F("seuil_alerte"), quantite_stock__gt=0)
+        .count()
+    )
+    nb_ok = total_geres - nb_rupture - nb_sous_seuil
+
+    kpi = {
+        "total_geres": total_geres,
+        "nb_rupture": nb_rupture,
+        "nb_sous_seuil": nb_sous_seuil,
+        "nb_ok": nb_ok,
+    }
+
+    return render(request, "referentiels/articles_stock.html", {
+        "articles": queryset,
+        "filtre": filtre,
+        "kpi": kpi,
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def article_ajuster_stock(request, pk):
+    """Ajuste le stock d'un article (entree ou sortie)."""
+    from apps.comptes.models import RoleUtilisateur
+    from .models import Article
+    from .services import ajuster_stock
+
+    if request.user.role not in (RoleUtilisateur.RESP_APPRO, RoleUtilisateur.ADMIN):
+        messages.error(request, "Reserve au Resp.Appro et Admin.")
+        return redirect("articles_stock")
+
+    article = get_object_or_404(Article, pk=pk)
+
+    try:
+        delta = int(request.POST.get("delta", 0))
+    except ValueError:
+        messages.error(request, "Quantite invalide.")
+        return redirect("articles_stock")
+
+    motif = request.POST.get("motif", "").strip()
+
+    if delta == 0:
+        messages.warning(request, "Quantite egale a zero, aucun changement.")
+    else:
+        ajuster_stock(article, delta, request.user, motif)
+        type_ope = "Entree" if delta > 0 else "Sortie"
+        messages.success(
+            request,
+            f"{type_ope} de {abs(delta)} {article.unite}(s) enregistree. "
+            f"Nouveau stock : {article.quantite_stock}."
+        )
+
+    return redirect("articles_stock")

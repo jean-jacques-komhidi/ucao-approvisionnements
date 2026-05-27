@@ -1,0 +1,119 @@
+{% extends "base_app.html" %}
+
+{% block titre %}Alertes IoT - UCAO{% endblock %}
+{% block page_titre %}🚨 Alertes IoT{% endblock %}
+
+{% block contenu %}
+<div class="page-liste">
+
+    <div class="grille-kpi">
+        <a href="?filtre=actives" class="kpi-carte kpi-carte-clickable">
+            <div class="kpi-icone-wrapper kpi-jaune">
+                <i data-lucide="alert-triangle" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Alertes actives</p>
+                <p class="kpi-valeur">{{ nb_actives }}</p>
+                <p class="kpi-detail">A traiter</p>
+            </div>
+        </a>
+
+        <a href="?filtre=traitees" class="kpi-carte kpi-carte-clickable">
+            <div class="kpi-icone-wrapper kpi-vert">
+                <i data-lucide="check-circle-2" class="kpi-icone"></i>
+            </div>
+            <div class="kpi-corps">
+                <p class="kpi-label">Alertes traitees</p>
+                <p class="kpi-valeur">{{ nb_traitees }}</p>
+                <p class="kpi-detail">Resolu</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="bandeau-actions">
+        <div>
+            <h2>
+                {% if filtre == 'actives' %}Alertes actives
+                {% elif filtre == 'traitees' %}Alertes traitees
+                {% else %}Toutes les alertes{% endif %}
+            </h2>
+            <p class="bandeau-sous-titre">{{ alertes|length }} resultat(s)</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="?filtre=actives" class="btn btn-secondaire {% if filtre == 'actives' %}btn-actif{% endif %}">Actives</a>
+            <a href="?filtre=traitees" class="btn btn-secondaire {% if filtre == 'traitees' %}btn-actif{% endif %}">Traitees</a>
+            <a href="?filtre=toutes" class="btn btn-secondaire {% if filtre == 'toutes' %}btn-actif{% endif %}">Toutes</a>
+        </div>
+    </div>
+
+    <div class="carte">
+        {% if alertes %}
+            <div class="liste-notifications">
+                {% for a in alertes %}
+                    <div class="notification-item {% if not a.est_traitee %}notification-non-lue{% endif %}">
+                        <div class="notification-icone-wrapper notification-{{ a.couleur_niveau }}">
+                            <i data-lucide="alert-triangle" class="notification-icone"></i>
+                        </div>
+
+                        <div class="notification-corps">
+                            <div class="notification-entete">
+                                <h4 class="notification-sujet">
+                                    {{ a.equipement.designation }}
+                                </h4>
+                                <span class="notification-date">{{ a.timestamp|date_fr }}</span>
+                            </div>
+                            <p class="notification-message">{{ a.message }}</p>
+
+                            <div class="notification-meta">
+                                <span class="badge badge-{{ a.couleur_niveau }} badge-petit">
+                                    {{ a.get_type_alerte_display() }}
+                                </span>
+                                {% if a.zone_actuelle %}
+                                    <span style="color: var(--texte-tertiaire); font-size: 0.75rem;">
+                                        📍 Zone : {{ a.zone_actuelle.nom }}
+                                    </span>
+                                {% endif %}
+                                {% if a.est_traitee %}
+                                    <span class="badge badge-success badge-petit">
+                                        ✓ Traitee par {{ a.traite_par.nom_complet }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            {% if a.commentaire_traitement %}
+                                <p style="margin-top: 0.5rem; padding: 0.5rem; background: var(--fond-secondaire); border-radius: 4px; font-size: 0.85rem; font-style: italic;">
+                                    💬 {{ a.commentaire_traitement }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        {% if not a.est_traitee %}
+                            <div class="notification-actions">
+                                <details>
+                                    <summary class="btn btn-principal btn-petit">
+                                        <i data-lucide="check" class="btn-icone"></i> Traiter
+                                    </summary>
+                                    <form method="post" action="{{ url('iot_alerte_traiter', kwargs={'pk': a.pk}) }}" style="margin-top: 0.5rem; min-width: 280px;">
+                                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                        <textarea name="commentaire" rows="2" class="champ-formulaire" placeholder="Commentaire (optionnel)..."></textarea>
+                                        <button type="submit" class="btn btn-principal btn-petit" style="margin-top: 0.5rem; width: 100%;">
+                                            Confirmer le traitement
+                                        </button>
+                                    </form>
+                                </details>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="etat-vide">
+                <i data-lucide="check-circle-2" class="etat-vide-icone"></i>
+                <h3>Aucune alerte</h3>
+                <p>Tout est sous controle !</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
