@@ -205,27 +205,27 @@ appro\_ucao/
 ## 🎯 Workflow métier
 
 Demandeur crée FEB
-↓
-EN_INSTANCE
-↓
-CG/DFC valide
-↓
-┌───┴────┐
-↓        ↓
-≤ 50k F   > 50k F
-↓        ↓
-CLÔTURÉE  BC généré
-(auto)
-↓
-DG valide
-↓
-DFC ordonne paiement
-↓
-DG vise
-↓
-Comptable exécute
-↓
-Email fournisseur
+        ↓
+    EN_INSTANCE
+        ↓
+    CG / DFC valide
+        ↓
+   ┌───────────────┐
+   ↓               ↓
+≤ 50k F        > 50k F
+   ↓               ↓
+CLÔTURÉE       BC généré (auto)
+                    ↓
+                 DG valide
+                    ↓
+             DFC ordonne paiement
+                    ↓
+                 DG vise
+                    ↓
+          Comptable exécute paiement
+                    ↓
+           Email envoyé au fournisseur
+
 
 ## 📊 Captures d'écran
 
