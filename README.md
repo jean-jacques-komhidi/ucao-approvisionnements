@@ -1,4 +1,4 @@
-\# 🎓 UCAO-ISG-CSM — Système de Gestion des Approvisionnements en Ligne
+🎓 UCAO-ISG-CSM — Système de Gestion des Approvisionnements en Ligne
 
 
 
@@ -8,7 +8,7 @@
 
 
 
-\## 📋 Description
+ 📋 Description
 
 
 
@@ -18,49 +18,49 @@ de la demande (FEB) au paiement, en passant par le bon de commande.
 
 
 
-\## 🛠️ Stack technique
+🛠️ Stack technique
 
 
 
-\- \*\*Backend\*\* : Django 4.2 LTS (Python 3.12)
+\- Backend : Django 4.2 LTS (Python 3.12)
 
-\- \*\*Base de données\*\* : PostgreSQL 15
+\- Base de données : PostgreSQL 15
 
-\- \*\*Templates\*\* : Jinja2
+\- Templates : Jinja2
 
-\- \*\*PDF\*\* : WeasyPrint + xhtml2pdf (fallback)
+\- PDF : WeasyPrint + xhtml2pdf (fallback)
 
-\- \*\*Emails\*\* : SMTP Gmail
+\- Emails : SMTP Gmail
 
-\- \*\*Authentification\*\* : Django Auth + bcrypt
+\- Authentification : Django Auth + bcrypt
 
-\- \*\*Charts\*\* : Chart.js 4.4
+\- Charts : Chart.js 4.4
 
-\- \*\*Icons\*\* : Lucide
-
-
-
-\## ✨ Fonctionnalités implémentées
+\- Icons : Lucide
 
 
 
-\- 🔐 \*\*Comptes\*\* : auth + 8 rôles + blocage 5 tentatives + thème sombre
-
-\- 📦 \*\*Référentiels\*\* : Articles (avec images) + Services + Fournisseurs (code auto F0001) + Devises
-
-\- 📄 \*\*FEB\*\* : workflow complet (DRAFT → EN\_INSTANCE → VALIDÉE/CLÔTURÉE/REJETÉE) + lignes dynamiques JS
-
-\- 📋 \*\*Bon de Commande\*\* : génération automatique si > 50 000 F CFA + PDF + verrouillage
-
-\- 💰 \*\*Paiements\*\* : circuit DFC → DG → Comptable + paiements partiels (acomptes)
-
-\- 🔔 \*\*Notifications\*\* : in-app + emails Gmail HTML
-
-\- 📊 \*\*Dashboard analytics\*\* : KPI adaptatifs par rôle + 4 graphiques Chart.js + alertes intelligentes
+ ✨ Fonctionnalités implémentées
 
 
 
-\## 👥 Acteurs
+\- 🔐 Comptes : auth + 8 rôles + blocage 5 tentatives + thème sombre
+
+\- 📦 Référentiels : Articles (avec images) + Services + Fournisseurs (code auto F0001) + Devises
+
+\- 📄 FEB : workflow complet (DRAFT → EN\_INSTANCE → VALIDÉE/CLÔTURÉE/REJETÉE) + lignes dynamiques JS
+
+\- 📋 Bon de Commande : génération automatique si > 50 000 F CFA + PDF + verrouillage
+
+\- 💰 Paiements : circuit DFC → DG → Comptable + paiements partiels (acomptes)
+
+\- 🔔 Notifications : in-app + emails Gmail HTML
+
+\- 📊 Dashboard analytics : KPI adaptatifs par rôle + 4 graphiques Chart.js + alertes intelligentes
+
+
+
+ 👥 Acteurs
 
 
 
@@ -86,11 +86,11 @@ de la demande (FEB) au paiement, en passant par le bon de commande.
 
 
 
-\## 🚀 Installation
+ 🚀 Installation
 
 
 
-\### Prérequis
+ Prérequis
 
 
 
@@ -102,7 +102,7 @@ de la demande (FEB) au paiement, en passant par le bon de commande.
 
 
 
-\### Étapes
+ Étapes
 
 
 
@@ -110,7 +110,7 @@ de la demande (FEB) au paiement, en passant par le bon de commande.
 
 \# 1. Cloner le dépôt
 
-git clone https://github.com/<ton-username>/<ton-repo>.git
+git clone https://github.com/ Jean-Jacques Komhidi/ucao-approvisionnements.git
 
 cd appro\_ucao
 
@@ -170,7 +170,7 @@ python manage.py runserver
 
 
 
-\## 📂 Structure du projet
+📂 Structure du projet
 
 
 
