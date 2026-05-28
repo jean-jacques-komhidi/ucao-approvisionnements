@@ -40,3 +40,9 @@ CSRF_COOKIE_SECURE = False
 # Logging plus verbeux
 LOGGING["loggers"]["django"]["level"] = "DEBUG"  # noqa: F405
 LOGGING["loggers"]["apps"]["level"] = "DEBUG"  # noqa: F405
+
+# Debug Toolbar : ne pas intercepter les redirections
+DEBUG_TOOLBAR_CONFIG = {
+    "DISABLE_PANELS": {"debug_toolbar.panels.redirects.RedirectsPanel"},
+    "SHOW_TOOLBAR_CALLBACK": lambda request: False,
+}

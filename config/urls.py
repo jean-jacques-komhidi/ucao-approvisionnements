@@ -4,32 +4,33 @@ URLs racines du projet UCAO Approvisionnements.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.http import HttpResponse
-from django.urls import include, path
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.shortcuts import redirect
+from django.urls import include, path
 
 
+def vue_accueil(request):
+    """
+    Page d'accueil : redirige selon l'etat de connexion.
 
-def vue_accueil_temporaire(request):
-    """Page d'accueil temporaire pour vérifier que Django fonctionne."""
-    return HttpResponse(
-        "<h1>UCAO Approvisionnements</h1>"
-        "<p>Le projet Django est correctement configure.</p>"
-        "<p>Prochaine etape : developper les apps metier.</p>"
-    )
+    - Utilisateur connecte  -> tableau de bord
+    - Non connecte          -> page de connexion
+    """
+    if request.user.is_authenticated:
+        return redirect("tableau_de_bord")
+    return redirect("connexion")
 
 
 urlpatterns = [
-    path("", vue_accueil_temporaire, name="accueil_temporaire"),
+    path("", vue_accueil, name="accueil"),
     path("admin-django/", admin.site.urls),
 
-    # A decommenter au fur et a mesure du developpement :
+    # Apps metier
     path("", include("apps.extensions.iot.urls")),
     path("", include("apps.notifications.urls")),
     path("", include("apps.comptes.urls")),
     path("referentiels/", include("apps.referentiels.urls")),
     path("", include("apps.approvisionnements.urls")),
-    # path("iot/", include("apps.extensions.iot.urls")),
     # path("predictions/", include("apps.extensions.prediction.urls")),
 ]
 
