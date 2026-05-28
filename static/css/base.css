@@ -3250,3 +3250,135 @@ svg.lucide {
         justify-content: space-between !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   INFINITE SCROLL - Spinner + message de fin
+   ═══════════════════════════════════════════════════════════════ */
+
+.scroll-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    color: var(--texte-secondaire);
+}
+
+.scroll-loader p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Spinner animation */
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--bordure-claire);
+    border-top-color: var(--principal, #2563EB);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Message de fin de liste */
+.scroll-fin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: var(--texte-tertiaire);
+    text-align: center;
+}
+
+.scroll-fin i {
+    width: 32px;
+    height: 32px;
+    color: #059669;
+}
+
+.scroll-fin p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PILLS DE CATEGORIES (filtres rapides)
+   ═══════════════════════════════════════════════════════════════ */
+
+.pills-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+    padding: 0;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 100px;
+    background-color: var(--fond-secondaire);
+    border: 1.5px solid var(--bordure-claire);
+    color: var(--texte-secondaire);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.pill:hover {
+    border-color: var(--principal, #2563EB);
+    color: var(--principal, #2563EB);
+    transform: translateY(-1px);
+}
+
+.pill-active {
+    background-color: var(--principal, #2563EB);
+    border-color: var(--principal, #2563EB);
+    color: white;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.pill-active:hover {
+    color: white;
+    transform: translateY(-1px);
+}
+
+.pill-icone {
+    width: 15px;
+    height: 15px;
+}
+
+/* Mode sombre */
+[data-theme="dark"] .pill {
+    background-color: var(--fond-carte, #1e293b);
+}
+
+[data-theme="dark"] .pill-active {
+    background-color: var(--principal, #3b82f6);
+    border-color: var(--principal, #3b82f6);
+}
+
+/* Responsive : scroll horizontal sur mobile */
+@media (max-width: 768px) {
+    .pills-categories {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .pill {
+        flex-shrink: 0;
+    }
+}

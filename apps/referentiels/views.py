@@ -42,9 +42,12 @@ def _peut_gerer_devises(user):
 # ═══════════════════════════════════════════════════════════════════
 # ARTICLES
 # ═══════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════
+# ARTICLES
+# ═══════════════════════════════════════════════════════════════════
 @login_required
 def liste_articles(request):
-    """Affiche la liste des articles avec recherche, filtres et KPI."""
+    """Affiche la liste des articles avec recherche, filtres, KPI et infinite scroll."""
     if not _est_demandeur_ou_admin(request.user):
         messages.error(request, "Vous n'avez pas l'autorisation d'acceder a cette page.")
         return redirect("tableau_de_bord")
@@ -77,6 +80,12 @@ def liste_articles(request):
     paginator = Paginator(queryset.order_by("designation"), 12)  # 12 par page (3x4 en grille)
     page = paginator.get_page(request.GET.get("page", 1))
 
+    # ─── Requete AJAX (infinite scroll) : renvoie juste les cartes ───
+    if request.GET.get("ajax") == "1":
+        return render(request, "referentiels/_articles_cartes.html", {
+            "articles": page,
+        })
+
     return render(request, "referentiels/articles_liste.html", {
         "articles": page,
         "recherche": recherche,
@@ -85,7 +94,6 @@ def liste_articles(request):
         "total": paginator.count,
         "kpi": kpi,
     })
-
 
 @login_required
 @require_http_methods(["GET", "POST"])

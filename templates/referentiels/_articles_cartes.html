@@ -1,0 +1,48 @@
+{% for article in articles %}
+    <div class="carte-article">
+        <div class="carte-article-image">
+            {% if article.url_image %}
+                <img src="{{ article.url_image }}" alt="{{ article.designation }}">
+            {% else %}
+                <div class="image-placeholder">
+                    <i data-lucide="image" class="image-placeholder-icone"></i>
+                    <p>Pas d'image</p>
+                </div>
+            {% endif %}
+            <span class="carte-article-badge">{{ article.get_nature_display() }}</span>
+        </div>
+
+        <div class="carte-article-corps">
+            <h3 class="carte-article-titre">{{ article.designation }}</h3>
+
+            {% if article.description %}
+                <p class="carte-article-description">{{ article.description|truncate(80) }}</p>
+            {% endif %}
+
+            <div class="carte-article-meta">
+                <span class="meta-item">
+                    <i data-lucide="ruler" class="meta-icone"></i>
+                    {{ article.get_unite_display() }}
+                </span>
+                <span class="meta-item">
+                    <i data-lucide="user" class="meta-icone"></i>
+                    {{ article.cree_par.nom_complet|truncate(20) }}
+                </span>
+            </div>
+        </div>
+
+        <div class="carte-article-actions">
+            <a href="{{ url('article_modifier', kwargs={'pk': article.pk}) }}" class="btn btn-secondaire btn-petit">
+                <i data-lucide="edit-2" class="btn-icone"></i>
+                Modifier
+            </a>
+            <form method="post" action="{{ url('article_supprimer', kwargs={'pk': article.pk}) }}" class="form-inline" onsubmit="return confirm('Retirer cet article du catalogue ?');">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-danger btn-petit">
+                    <i data-lucide="trash-2" class="btn-icone"></i>
+                    Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+{% endfor %}

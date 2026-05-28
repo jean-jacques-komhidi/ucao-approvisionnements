@@ -64,10 +64,10 @@
         </a>
     </div>
 
-    {# ─── BARRE DE RECHERCHE + FILTRES ─────────────────────── #}
+    {# ─── BARRE DE RECHERCHE ──────────────────────────────── #}
     <div class="carte">
         <div class="filtres-zone">
-            <form method="get" class="formulaire-filtres">
+            <form method="get" class="formulaire-filtres" id="form-recherche">
                 <div class="champ-recherche-integre">
                     <i data-lucide="search" class="recherche-icone"></i>
                     <input type="text" name="q" value="{{ recherche }}"
@@ -76,92 +76,48 @@
                         <i data-lucide="arrow-right" class="btn-icone"></i>
                     </button>
                 </div>
-                <select name="nature" class="champ-formulaire champ-select" onchange="this.form.submit()">
-                    <option value="">Toutes les categories</option>
-                    {% for valeur, label in natures %}
-                        <option value="{{ valeur }}" {% if nature_filtre == valeur %}selected{% endif %}>
-                            {{ label }}
-                        </option>
-                    {% endfor %}
-                </select>
-                {% if recherche or nature_filtre %}
-                    <a href="{{ url('articles_liste') }}" class="btn btn-secondaire">
-                        <i data-lucide="x" class="btn-icone"></i>
-                        Reinitialiser
-                    </a>
-                {% endif %}
+                {# Conserve la categorie active lors d'une recherche #}
+                <input type="hidden" name="nature" value="{{ nature_filtre }}">
             </form>
         </div>
     </div>
 
-    {# ─── GRILLE D'ARTICLES (style e-commerce) ─────────────── #}
+    {# ─── PILLS DE CATEGORIES ─────────────────────────────── #}
+    <div class="pills-categories">
+        <a href="?{% if recherche %}q={{ recherche }}{% endif %}"
+           class="pill {% if not nature_filtre %}pill-active{% endif %}">
+            <i data-lucide="layout-grid" class="pill-icone"></i>
+            Tous
+        </a>
+        {% for valeur, label in natures %}
+            <a href="?nature={{ valeur }}{% if recherche %}&q={{ recherche }}{% endif %}"
+               class="pill {% if nature_filtre == valeur %}pill-active{% endif %}">
+                {{ label }}
+            </a>
+        {% endfor %}
+    </div>
+
+    {# ─── GRILLE D'ARTICLES (style e-commerce + infinite scroll) ───── #}
     {% if articles %}
-        <div class="grille-articles">
-            {% for article in articles %}
-                <div class="carte-article">
-                    <div class="carte-article-image">
-                        {% if article.url_image %}
-                            <img src="{{ article.url_image }}" alt="{{ article.designation }}">
-                        {% else %}
-                            <div class="image-placeholder">
-                                <i data-lucide="image" class="image-placeholder-icone"></i>
-                                <p>Pas d'image</p>
-                            </div>
-                        {% endif %}
-                        <span class="carte-article-badge">{{ article.get_nature_display() }}</span>
-                    </div>
-
-                    <div class="carte-article-corps">
-                        <h3 class="carte-article-titre">{{ article.designation }}</h3>
-
-                        {% if article.description %}
-                            <p class="carte-article-description">{{ article.description|truncate(80) }}</p>
-                        {% endif %}
-
-                        <div class="carte-article-meta">
-                            <span class="meta-item">
-                                <i data-lucide="ruler" class="meta-icone"></i>
-                                {{ article.get_unite_display() }}
-                            </span>
-                            <span class="meta-item">
-                                <i data-lucide="user" class="meta-icone"></i>
-                                {{ article.cree_par.nom_complet|truncate(20) }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="carte-article-actions">
-                        <a href="{{ url('article_modifier', kwargs={'pk': article.pk}) }}" class="btn btn-secondaire btn-petit">
-                            <i data-lucide="edit-2" class="btn-icone"></i>
-                            Modifier
-                        </a>
-                        <form method="post" action="{{ url('article_supprimer', kwargs={'pk': article.pk}) }}" class="form-inline" onsubmit="return confirm('Retirer cet article du catalogue ?');">
-                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                            <button type="submit" class="btn btn-danger btn-petit">
-                                <i data-lucide="trash-2" class="btn-icone"></i>
-                                Supprimer
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            {% endfor %}
+        <div class="grille-articles" id="grille-articles"
+             data-page="{{ articles.number }}"
+             data-total-pages="{{ articles.paginator.num_pages }}"
+             data-q="{{ recherche }}"
+             data-nature="{{ nature_filtre }}">
+            {% include "referentiels/_articles_cartes.html" %}
         </div>
 
-        {% if articles.has_other_pages %}
-            <div class="pagination">
-                {% if articles.has_previous() %}
-                    <a href="?page={{ articles.previous_page_number() }}{% if recherche %}&q={{ recherche }}{% endif %}{% if nature_filtre %}&nature={{ nature_filtre }}{% endif %}" class="btn btn-secondaire">
-                        <i data-lucide="chevron-left" class="btn-icone"></i> Precedent
-                    </a>
-                {% endif %}
-                <span class="pagination-info">Page {{ articles.number }} / {{ articles.paginator.num_pages }}</span>
-                {% if articles.has_next() %}
-                    <a href="?page={{ articles.next_page_number() }}{% if recherche %}&q={{ recherche }}{% endif %}{% if nature_filtre %}&nature={{ nature_filtre }}{% endif %}" class="btn btn-secondaire">
-                        Suivant <i data-lucide="chevron-right" class="btn-icone"></i>
-                    </a>
-                {% endif %}
-            </div>
-        {% endif %}
+        {# Indicateur de chargement (spinner) #}
+        <div id="scroll-loader" class="scroll-loader" style="display: none;">
+            <div class="spinner"></div>
+            <p>Chargement des articles...</p>
+        </div>
+
+        {# Message fin de liste #}
+        <div id="scroll-fin" class="scroll-fin" style="display: none;">
+            <i data-lucide="check-circle-2"></i>
+            <p>Tous les articles sont affiches ({{ total }} au total)</p>
+        </div>
     {% else %}
         <div class="carte">
             <div class="etat-vide">
@@ -177,4 +133,80 @@
     {% endif %}
 
 </div>
+
+{# ─── JAVASCRIPT INFINITE SCROLL ──────────────────────────── #}
+<script>
+(function() {
+    const grille = document.getElementById('grille-articles');
+    if (!grille) return;
+
+    let pageActuelle = parseInt(grille.dataset.page);
+    const totalPages = parseInt(grille.dataset.totalPages);
+    const recherche = grille.dataset.q;
+    const nature = grille.dataset.nature;
+
+    let chargementEnCours = false;
+    let toutCharge = pageActuelle >= totalPages;
+
+    const loader = document.getElementById('scroll-loader');
+    const finMessage = document.getElementById('scroll-fin');
+
+    if (toutCharge && finMessage) {
+        finMessage.style.display = 'flex';
+    }
+
+    function chargerPageSuivante() {
+        if (chargementEnCours || toutCharge) return;
+
+        chargementEnCours = true;
+        loader.style.display = 'flex';
+
+        const pageSuivante = pageActuelle + 1;
+
+        let url = `?page=${pageSuivante}&ajax=1`;
+        if (recherche) url += `&q=${encodeURIComponent(recherche)}`;
+        if (nature) url += `&nature=${encodeURIComponent(nature)}`;
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.text())
+        .then(html => {
+            grille.insertAdjacentHTML('beforeend', html);
+
+            pageActuelle = pageSuivante;
+            chargementEnCours = false;
+            loader.style.display = 'none';
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            if (pageActuelle >= totalPages) {
+                toutCharge = true;
+                if (finMessage) finMessage.style.display = 'flex';
+            }
+        })
+        .catch(err => {
+            console.error('Erreur chargement articles :', err);
+            chargementEnCours = false;
+            loader.style.display = 'none';
+        });
+    }
+
+    function verifierScroll() {
+        const positionScroll = window.innerHeight + window.scrollY;
+        const hauteurPage = document.body.offsetHeight;
+        if (positionScroll >= hauteurPage - 300) {
+            chargerPageSuivante();
+        }
+    }
+
+    let timeoutScroll;
+    window.addEventListener('scroll', function() {
+        if (timeoutScroll) clearTimeout(timeoutScroll);
+        timeoutScroll = setTimeout(verifierScroll, 100);
+    });
+})();
+</script>
 {% endblock %}
