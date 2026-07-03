@@ -550,7 +550,7 @@ coverage html    # Rapport HTML dans htmlcov/index.html
 
 <table>
 <tr>
-<td width="50%"><b>Page de connexion</b><br><img src="docs/screenshots/01_capture.png" alt="Connexion"></td>
+<td width="50%"><b>Page de connexion</b><br><img src="Capture d'écran 2026-07-03 152340.png" alt="Connexion"></td>
 <td width="50%"><b>Tableau de bord analytique</b><br><img src="Capture d'écran 2026-05-27 211532.png" alt="Dashboard"></td>
 </tr>
 <tr>
