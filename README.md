@@ -555,7 +555,7 @@ coverage html    # Rapport HTML dans htmlcov/index.html
 </tr>
 <tr>
 <td><b>Catalogue Articles (infinite scroll)</b><br><img src="Capture d'écran 2026-05-27 212147.png" alt="Catalogue"></td>
-<td><b>Création d'une FEB</b><br><img src="docs/screenshots/05_capture.png" alt="FEB"></td>
+<td><b>Création d'une FEB</b><br><img src="Capture d'écran 2026-05-27 211710.png" alt="FEB"></td>
 </tr>
 <tr>
 <td><b>Détail FEB (workflow)</b><br><img src="docs/screenshots/07_capture.png" alt="FEB Détail"></td>
