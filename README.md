@@ -10,6 +10,7 @@ Application web full-stack de digitalisation intégrale du cycle d'approvisionne
 [![Redis](https://img.shields.io/badge/Redis-Broker-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
 [![Celery](https://img.shields.io/badge/Celery-Async-37814A?style=flat-square&logo=celery&logoColor=white)](https://docs.celeryq.dev/)
 [![Tests](https://img.shields.io/badge/Tests-30+_passing-success?style=flat-square)]()
+[![License](https://img.shields.io/badge/License-Academic-lightgrey?style=flat-square)]()
 
 ---
 
@@ -551,23 +552,23 @@ coverage html    # Rapport HTML dans htmlcov/index.html
 <table>
 <tr>
 <td width="50%"><b>Page de connexion</b><br><img src="Capture d'écran 2026-07-03 152340.png" alt="Connexion"></td>
-<td width="50%"><b>Tableau de bord analytique</b><br><img src="Capture d'écran 2026-05-27 211532.png" alt="Dashboard"></td>
+<td width="50%"><b>Tableau de bord analytique</b><br><img src="docs/screenshots/02_capture.png" alt="Dashboard"></td>
 </tr>
 <tr>
-<td><b>Catalogue Articles (infinite scroll)</b><br><img src="Capture d'écran 2026-05-27 212147.png" alt="Catalogue"></td>
-<td><b>Création d'une FEB</b><br><img src="Capture d'écran 2026-05-27 211710.png" alt="FEB"></td>
+<td><b>Catalogue Articles (infinite scroll)</b><br><img src="docs/screenshots/04_capture.png" alt="Catalogue"></td>
+<td><b>Création d'une FEB</b><br><img src="docs/screenshots/05_capture.png" alt="FEB"></td>
 </tr>
 <tr>
-<td><b>Détail FEB (workflow)</b><br><img src="Capture d'écran 2026-05-27 211729.png" alt="FEB Détail"></td>
-<td><b>Bon de Commande</b><br><img src="Capture d'écran 2026-05-27 211802.png" alt="BC"></td>
+<td><b>Détail FEB (workflow)</b><br><img src="docs/screenshots/07_capture.png" alt="FEB Détail"></td>
+<td><b>Bon de Commande</b><br><img src="docs/screenshots/09_capture.png" alt="BC"></td>
 </tr>
 <tr>
-<td><b>Circuit de paiement</b><br><img src="Capture d'écran 2026-05-27 211944.png" alt="Paiement"></td>
-<td><b>Notifications</b><br><img src="Capture d'écran 2026-05-27 211643.png" alt="Notifications"></td>
+<td><b>Circuit de paiement</b><br><img src="docs/screenshots/11_capture.png" alt="Paiement"></td>
+<td><b>Notifications</b><br><img src="docs/screenshots/14_capture.png" alt="Notifications"></td>
 </tr>
 <tr>
-<td><b>Gestion de stock intelligente</b><br><img src="Capture d'écran 2026-05-27 212540.png" alt="Stock"></td>
-<td><b>Dashboard IoT (géofencing)</b><br><img src="Capture d'écran 2026-05-27 212031.png" alt="IoT"></td>
+<td><b>Gestion de stock intelligente</b><br><img src="docs/screenshots/16_capture.png" alt="Stock"></td>
+<td><b>Dashboard IoT (géofencing)</b><br><img src="docs/screenshots/17_capture.png" alt="IoT"></td>
 </tr>
 </table>
 
@@ -625,4 +626,4 @@ Master Informatique de Gestion — UCAO-ISG-CSM
 
 ## Remerciements
 
-Merci à toute l'équipe pédagogique de l'UCAO-ISG-CSM, à  **Dr Bilong** et **M. Papa Samba Traoré**, pour leur soutien tout au long de ce projet tutoré.
+Merci à toute l'équipe pédagogique de l'UCAO-ISG-CSM, à mes deux encadrants **Dr Bilong** et **M. Papa Samba Traoré**, ainsi qu'à ma famille pour leur soutien tout au long de ce projet tutoré.
