@@ -558,7 +558,7 @@ coverage html    # Rapport HTML dans htmlcov/index.html
 <td><b>Création d'une FEB</b><br><img src="Capture d'écran 2026-05-27 211710.png" alt="FEB"></td>
 </tr>
 <tr>
-<td><b>Détail FEB (workflow)</b><br><img src="docs/screenshots/07_capture.png" alt="FEB Détail"></td>
+<td><b>Détail FEB (workflow)</b><br><img src="Capture d'écran 2026-05-27 211729.png" alt="FEB Détail"></td>
 <td><b>Bon de Commande</b><br><img src="Capture d'écran 2026-05-27 211802.png" alt="BC"></td>
 </tr>
 <tr>
