@@ -563,7 +563,7 @@ coverage html    # Rapport HTML dans htmlcov/index.html
 </tr>
 <tr>
 <td><b>Circuit de paiement</b><br><img src="docs/screenshots/11_capture.png" alt="Paiement"></td>
-<td><b>Notifications</b><br><img src="docs/screenshots/14_capture.png" alt="Notifications"></td>
+<td><b>Notifications</b><br><img src="Capture d'écran 2026-05-27 211643.png" alt="Notifications"></td>
 </tr>
 <tr>
 <td><b>Gestion de stock intelligente</b><br><img src="docs/screenshots/16_capture.png" alt="Stock"></td>
