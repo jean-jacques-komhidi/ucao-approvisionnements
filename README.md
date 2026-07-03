@@ -626,4 +626,4 @@ Master Informatique de Gestion — UCAO-ISG-CSM
 
 ## Remerciements
 
-Merci à toute l'équipe pédagogique de l'UCAO-ISG-CSM, à mes deux encadrants **Dr Bilong** et **M. Papa Samba Traoré**, ainsi qu'à ma famille pour leur soutien tout au long de ce projet tutoré.
+Merci à toute l'équipe pédagogique de l'UCAO-ISG-CSM, à mes deux encadrants **Dr Bilong** et **M. Papa Samba Traoré**, pour leur soutien tout au long de ce projet tutoré.
