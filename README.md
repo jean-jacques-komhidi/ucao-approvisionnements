@@ -566,7 +566,7 @@ coverage html    # Rapport HTML dans htmlcov/index.html
 <td><b>Notifications</b><br><img src="Capture d'écran 2026-05-27 211643.png" alt="Notifications"></td>
 </tr>
 <tr>
-<td><b>Gestion de stock intelligente</b><br><img src="docs/screenshots/16_capture.png" alt="Stock"></td>
+<td><b>Gestion de stock intelligente</b><br><img src="Capture d'écran 2026-05-27 212540.png" alt="Stock"></td>
 <td><b>Dashboard IoT (géofencing)</b><br><img src="Capture d'écran 2026-05-27 212031.png" alt="IoT"></td>
 </tr>
 </table>
