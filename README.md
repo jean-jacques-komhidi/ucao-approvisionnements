@@ -10,7 +10,6 @@ Application web full-stack de digitalisation intégrale du cycle d'approvisionne
 [![Redis](https://img.shields.io/badge/Redis-Broker-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
 [![Celery](https://img.shields.io/badge/Celery-Async-37814A?style=flat-square&logo=celery&logoColor=white)](https://docs.celeryq.dev/)
 [![Tests](https://img.shields.io/badge/Tests-30+_passing-success?style=flat-square)]()
-[![License](https://img.shields.io/badge/License-Academic-lightgrey?style=flat-square)]()
 
 ---
 
