@@ -3382,3 +3382,121 @@ svg.lucide {
         flex-shrink: 0;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LOGO UCAO - Page de connexion + Sidebar
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Logo grand sur page de connexion */
+.logo-image-grand {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.12));
+    transition: transform 0.3s ease;
+}
+
+.logo-image-grand:hover {
+    transform: scale(1.05);
+}
+
+/* Conteneur du logo grand */
+.logo-grand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Logo petit dans la sidebar */
+.logo-icone-image {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+}
+
+/* Responsive : logo un peu plus petit sur mobile */
+@media (max-width: 480px) {
+    .logo-image-grand {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LOGO UCAO - Page de connexion + Sidebar
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Logo grand sur page de connexion */
+.logo-image-grand {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.12));
+    transition: transform 0.3s ease;
+}
+
+.logo-image-grand:hover {
+    transform: scale(1.05);
+}
+
+/* Conteneur du logo grand */
+.logo-grand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Logo petit dans la sidebar (base_app.html) */
+.logo-icone-image {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+}
+
+/* Responsive : logo un peu plus petit sur mobile */
+@media (max-width: 480px) {
+    .logo-image-grand {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* Logo dans la sidebar - taille reduite */
+.logo-icone-image {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+/* Assure que le conteneur logo aligne bien image + texte */
+.sidebar-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Texte du logo bien proportionné */
+.sidebar-header .logo-titre {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.sidebar-header .logo-sous-titre {
+    font-size: 0.75rem;
+    color: var(--texte-secondaire);
+    line-height: 1.2;
+}
